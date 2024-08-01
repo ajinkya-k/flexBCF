@@ -27,6 +27,8 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
                    Rcpp::NumericVector mu0, Rcpp::NumericVector tau,
                    double lambda, double nu,
                    int M_mu, int M_tau,
+                   double alpha_mu, double beta_mu,
+                   double alpha_tau, double beta_tau,
                    int nd, int burn, int thin,
                    bool verbose, int print_every)
 {
@@ -52,7 +54,7 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
   int p_tau = p_cont_tau + p_cat_tau;
   
   if(verbose){
-    Rcpp::Rcout << "n_train = " << n_train << "n_treat = " << n_treat << " n_control = " << n_control;
+    Rcpp::Rcout << "n_train = " << n_train << " n_treat = " << n_treat << " n_control = " << n_control;
     Rcpp::Rcout << " p_cont_mu = " << p_cont_mu << "  p_cat_mu = " << p_cat_mu << std::endl;
     Rcpp::Rcout << " p_cont_tau = " << p_cont_tau << "  p_cat_tau = " << p_cat_tau << std::endl;
   }
@@ -152,6 +154,8 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
   
   tree_prior_info tree_pi_mu;
   tree_pi_mu.theta = &theta_mu;
+  tree_pi_mu.alpha = alpha_mu;
+  tree_pi_mu.beta = beta_mu;
   tree_pi_mu.var_count = &var_count_mu;
   tree_pi_mu.rule_count = &rule_count_mu;
   tree_pi_mu.rc_rule_count = &rc_rule_count_mu;
@@ -170,6 +174,8 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
   tree_pi_mu.tau = tau[0];
   
   tree_prior_info tree_pi_tau;
+  tree_pi_tau.alpha = alpha_tau;
+  tree_pi_tau.beta = beta_tau;
   tree_pi_tau.theta = &theta_tau;
   tree_pi_tau.var_count = &var_count_tau;
   tree_pi_tau.rule_count = &rule_count_tau;
@@ -189,6 +195,10 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
   tree_pi_tau.tau = tau[1];
   
   
+  if (verbose) {
+    Rcpp::Rcout << "For  mu trees: alpha = " << tree_pi_mu.alpha << ", beta = ", tree_pi_mu.beta << std::endl;
+    Rcpp::Rcout << "For tau trees: alpha = " << tree_pi_tau.alpha << ", beta = ", tree_pi_tau.beta << std::endl;
+  }
   // stuff for sigma
   double sigma = 1.0;
   double total_sq_resid = 0.0; // sum of squared residuals

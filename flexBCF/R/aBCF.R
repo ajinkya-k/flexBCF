@@ -32,7 +32,7 @@ aBCF <- function(Y_train,
   adj_support_list_mu <- NULL
   adj_support_list_tau <- NULL
   
-  fit <- .flexBCF(Y_train = std_Y,
+  fit <- .aBCF(Y_train = std_Y,
                   treated = treated,
                   tX_cont_mu_train = t(X_cont_mu),
                   tX_cat_mu_train = t(X_cat_mu),
@@ -50,9 +50,11 @@ aBCF <- function(Y_train,
                   adj_support_list_mu = adj_support_list_mu,
                   adj_support_list_tau = adj_support_list_tau,
                   sparse = sparse, a_u = 1, b_u = 1,
-                  mu0 = mu0, tau = tau,
+                  mu0 = mu0, tau = tau, #THIS TAU IS PRIOR VAR, NOT TAU FN,SRY!
                   lambda = lambda, nu = nu,
                   M_mu = M_mu, M_tau = M_tau,
+                  alpha_mu = alpha_mu, beta_mu = beta_mu,
+                  alpha_tau = alpha_tau, beta_tau = beta_tau,
                   nd = nd, burn = burn, thin = thin,
                   verbose = verbose, print_every = print_every)
   results <- list()
