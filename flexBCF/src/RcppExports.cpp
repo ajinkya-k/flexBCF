@@ -11,9 +11,60 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// aBCF
+Rcpp::List aBCF(Rcpp::NumericVector Y_train, Rcpp::IntegerVector treated, Rcpp::NumericMatrix tX_cont_mu_train, Rcpp::IntegerMatrix tX_cat_mu_train, Rcpp::NumericMatrix tX_cont_tau_train, Rcpp::IntegerMatrix tX_cat_tau_train, Rcpp::NumericVector obs_weights, Rcpp::LogicalVector unif_cuts_mu, Rcpp::LogicalVector unif_cuts_tau, Rcpp::Nullable<Rcpp::List> cutpoints_list_mu, Rcpp::Nullable<Rcpp::List> cutpoints_list_tau, Rcpp::Nullable<Rcpp::List> cat_levels_list_mu, Rcpp::Nullable<Rcpp::List> cat_levels_list_tau, Rcpp::LogicalVector graph_split_mu, Rcpp::LogicalVector graph_split_tau, int graph_cut_type_mu, int graph_cut_type_tau, Rcpp::Nullable<Rcpp::List> adj_support_list_mu, Rcpp::Nullable<Rcpp::List> adj_support_list_tau, bool sparse, double a_u, double b_u, Rcpp::NumericVector mu0, Rcpp::NumericVector tau, double lambda, double nu, double sigu_hyperprior, int M_mu, int M_tau, double alpha_mu, double beta_mu, double alpha_tau, double beta_tau, int nd, int burn, int thin, bool save_samples, int batch_size, double acceptance_target, bool verbose, int print_every);
+RcppExport SEXP _flexBCFa_aBCF(SEXP Y_trainSEXP, SEXP treatedSEXP, SEXP tX_cont_mu_trainSEXP, SEXP tX_cat_mu_trainSEXP, SEXP tX_cont_tau_trainSEXP, SEXP tX_cat_tau_trainSEXP, SEXP obs_weightsSEXP, SEXP unif_cuts_muSEXP, SEXP unif_cuts_tauSEXP, SEXP cutpoints_list_muSEXP, SEXP cutpoints_list_tauSEXP, SEXP cat_levels_list_muSEXP, SEXP cat_levels_list_tauSEXP, SEXP graph_split_muSEXP, SEXP graph_split_tauSEXP, SEXP graph_cut_type_muSEXP, SEXP graph_cut_type_tauSEXP, SEXP adj_support_list_muSEXP, SEXP adj_support_list_tauSEXP, SEXP sparseSEXP, SEXP a_uSEXP, SEXP b_uSEXP, SEXP mu0SEXP, SEXP tauSEXP, SEXP lambdaSEXP, SEXP nuSEXP, SEXP sigu_hyperpriorSEXP, SEXP M_muSEXP, SEXP M_tauSEXP, SEXP alpha_muSEXP, SEXP beta_muSEXP, SEXP alpha_tauSEXP, SEXP beta_tauSEXP, SEXP ndSEXP, SEXP burnSEXP, SEXP thinSEXP, SEXP save_samplesSEXP, SEXP batch_sizeSEXP, SEXP acceptance_targetSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type Y_train(Y_trainSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type treated(treatedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type tX_cont_mu_train(tX_cont_mu_trainSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type tX_cat_mu_train(tX_cat_mu_trainSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type tX_cont_tau_train(tX_cont_tau_trainSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type tX_cat_tau_train(tX_cat_tau_trainSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type obs_weights(obs_weightsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type unif_cuts_mu(unif_cuts_muSEXP);
+    Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type unif_cuts_tau(unif_cuts_tauSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::List> >::type cutpoints_list_mu(cutpoints_list_muSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::List> >::type cutpoints_list_tau(cutpoints_list_tauSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::List> >::type cat_levels_list_mu(cat_levels_list_muSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::List> >::type cat_levels_list_tau(cat_levels_list_tauSEXP);
+    Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type graph_split_mu(graph_split_muSEXP);
+    Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type graph_split_tau(graph_split_tauSEXP);
+    Rcpp::traits::input_parameter< int >::type graph_cut_type_mu(graph_cut_type_muSEXP);
+    Rcpp::traits::input_parameter< int >::type graph_cut_type_tau(graph_cut_type_tauSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::List> >::type adj_support_list_mu(adj_support_list_muSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::List> >::type adj_support_list_tau(adj_support_list_tauSEXP);
+    Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
+    Rcpp::traits::input_parameter< double >::type a_u(a_uSEXP);
+    Rcpp::traits::input_parameter< double >::type b_u(b_uSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mu0(mu0SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type nu(nuSEXP);
+    Rcpp::traits::input_parameter< double >::type sigu_hyperprior(sigu_hyperpriorSEXP);
+    Rcpp::traits::input_parameter< int >::type M_mu(M_muSEXP);
+    Rcpp::traits::input_parameter< int >::type M_tau(M_tauSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha_mu(alpha_muSEXP);
+    Rcpp::traits::input_parameter< double >::type beta_mu(beta_muSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha_tau(alpha_tauSEXP);
+    Rcpp::traits::input_parameter< double >::type beta_tau(beta_tauSEXP);
+    Rcpp::traits::input_parameter< int >::type nd(ndSEXP);
+    Rcpp::traits::input_parameter< int >::type burn(burnSEXP);
+    Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
+    Rcpp::traits::input_parameter< bool >::type save_samples(save_samplesSEXP);
+    Rcpp::traits::input_parameter< int >::type batch_size(batch_sizeSEXP);
+    Rcpp::traits::input_parameter< double >::type acceptance_target(acceptance_targetSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< int >::type print_every(print_everySEXP);
+    rcpp_result_gen = Rcpp::wrap(aBCF(Y_train, treated, tX_cont_mu_train, tX_cat_mu_train, tX_cont_tau_train, tX_cat_tau_train, obs_weights, unif_cuts_mu, unif_cuts_tau, cutpoints_list_mu, cutpoints_list_tau, cat_levels_list_mu, cat_levels_list_tau, graph_split_mu, graph_split_tau, graph_cut_type_mu, graph_cut_type_tau, adj_support_list_mu, adj_support_list_tau, sparse, a_u, b_u, mu0, tau, lambda, nu, sigu_hyperprior, M_mu, M_tau, alpha_mu, beta_mu, alpha_tau, beta_tau, nd, burn, thin, save_samples, batch_size, acceptance_target, verbose, print_every));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_SATT
 Rcpp::List compute_SATT(Rcpp::List tree_draws, Rcpp::NumericMatrix tX_cont, Rcpp::IntegerMatrix tX_cat, bool treat, double y_mean, double y_sd, Rcpp::NumericVector probs, Rcpp::Nullable<Rcpp::List> cat_levels_list, bool verbose, int print_every);
-RcppExport SEXP _flexBCF_compute_SATT(SEXP tree_drawsSEXP, SEXP tX_contSEXP, SEXP tX_catSEXP, SEXP treatSEXP, SEXP y_meanSEXP, SEXP y_sdSEXP, SEXP probsSEXP, SEXP cat_levels_listSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
+RcppExport SEXP _flexBCFa_compute_SATT(SEXP tree_drawsSEXP, SEXP tX_contSEXP, SEXP tX_catSEXP, SEXP treatSEXP, SEXP y_meanSEXP, SEXP y_sdSEXP, SEXP probsSEXP, SEXP cat_levels_listSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -33,7 +84,7 @@ END_RCPP
 }
 // compute_weighted_SATT
 Rcpp::List compute_weighted_SATT(Rcpp::List tree_draws, Rcpp::NumericMatrix tX_cont, Rcpp::IntegerMatrix tX_cat, Rcpp::NumericVector weights, bool treat, double y_mean, double y_sd, Rcpp::NumericVector probs, Rcpp::Nullable<Rcpp::List> cat_levels_list, bool verbose, int print_every);
-RcppExport SEXP _flexBCF_compute_weighted_SATT(SEXP tree_drawsSEXP, SEXP tX_contSEXP, SEXP tX_catSEXP, SEXP weightsSEXP, SEXP treatSEXP, SEXP y_meanSEXP, SEXP y_sdSEXP, SEXP probsSEXP, SEXP cat_levels_listSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
+RcppExport SEXP _flexBCFa_compute_weighted_SATT(SEXP tree_drawsSEXP, SEXP tX_contSEXP, SEXP tX_catSEXP, SEXP weightsSEXP, SEXP treatSEXP, SEXP y_meanSEXP, SEXP y_sdSEXP, SEXP probsSEXP, SEXP cat_levels_listSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -54,7 +105,7 @@ END_RCPP
 }
 // flexBCF
 Rcpp::List flexBCF(Rcpp::NumericVector Y_train, Rcpp::IntegerVector treated, Rcpp::NumericMatrix tX_cont_mu_train, Rcpp::IntegerMatrix tX_cat_mu_train, Rcpp::NumericMatrix tX_cont_tau_train, Rcpp::IntegerMatrix tX_cat_tau_train, Rcpp::LogicalVector unif_cuts_mu, Rcpp::LogicalVector unif_cuts_tau, Rcpp::Nullable<Rcpp::List> cutpoints_list_mu, Rcpp::Nullable<Rcpp::List> cutpoints_list_tau, Rcpp::Nullable<Rcpp::List> cat_levels_list_mu, Rcpp::Nullable<Rcpp::List> cat_levels_list_tau, Rcpp::LogicalVector graph_split_mu, Rcpp::LogicalVector graph_split_tau, int graph_cut_type_mu, int graph_cut_type_tau, Rcpp::Nullable<Rcpp::List> adj_support_list_mu, Rcpp::Nullable<Rcpp::List> adj_support_list_tau, bool sparse, double a_u, double b_u, Rcpp::NumericVector mu0, Rcpp::NumericVector tau, double lambda, double nu, int M_mu, int M_tau, int nd, int burn, int thin, bool verbose, int print_every);
-RcppExport SEXP _flexBCF_flexBCF(SEXP Y_trainSEXP, SEXP treatedSEXP, SEXP tX_cont_mu_trainSEXP, SEXP tX_cat_mu_trainSEXP, SEXP tX_cont_tau_trainSEXP, SEXP tX_cat_tau_trainSEXP, SEXP unif_cuts_muSEXP, SEXP unif_cuts_tauSEXP, SEXP cutpoints_list_muSEXP, SEXP cutpoints_list_tauSEXP, SEXP cat_levels_list_muSEXP, SEXP cat_levels_list_tauSEXP, SEXP graph_split_muSEXP, SEXP graph_split_tauSEXP, SEXP graph_cut_type_muSEXP, SEXP graph_cut_type_tauSEXP, SEXP adj_support_list_muSEXP, SEXP adj_support_list_tauSEXP, SEXP sparseSEXP, SEXP a_uSEXP, SEXP b_uSEXP, SEXP mu0SEXP, SEXP tauSEXP, SEXP lambdaSEXP, SEXP nuSEXP, SEXP M_muSEXP, SEXP M_tauSEXP, SEXP ndSEXP, SEXP burnSEXP, SEXP thinSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
+RcppExport SEXP _flexBCFa_flexBCF(SEXP Y_trainSEXP, SEXP treatedSEXP, SEXP tX_cont_mu_trainSEXP, SEXP tX_cat_mu_trainSEXP, SEXP tX_cont_tau_trainSEXP, SEXP tX_cat_tau_trainSEXP, SEXP unif_cuts_muSEXP, SEXP unif_cuts_tauSEXP, SEXP cutpoints_list_muSEXP, SEXP cutpoints_list_tauSEXP, SEXP cat_levels_list_muSEXP, SEXP cat_levels_list_tauSEXP, SEXP graph_split_muSEXP, SEXP graph_split_tauSEXP, SEXP graph_cut_type_muSEXP, SEXP graph_cut_type_tauSEXP, SEXP adj_support_list_muSEXP, SEXP adj_support_list_tauSEXP, SEXP sparseSEXP, SEXP a_uSEXP, SEXP b_uSEXP, SEXP mu0SEXP, SEXP tauSEXP, SEXP lambdaSEXP, SEXP nuSEXP, SEXP M_muSEXP, SEXP M_tauSEXP, SEXP ndSEXP, SEXP burnSEXP, SEXP thinSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -96,7 +147,7 @@ END_RCPP
 }
 // predict_flexBART
 arma::mat predict_flexBART(Rcpp::List tree_draws, Rcpp::NumericMatrix tX_cont, Rcpp::IntegerMatrix tX_cat, bool treat, double y_mean, double y_sd, Rcpp::Nullable<Rcpp::List> cat_levels_list, bool verbose, int print_every);
-RcppExport SEXP _flexBCF_predict_flexBART(SEXP tree_drawsSEXP, SEXP tX_contSEXP, SEXP tX_catSEXP, SEXP treatSEXP, SEXP y_meanSEXP, SEXP y_sdSEXP, SEXP cat_levels_listSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
+RcppExport SEXP _flexBCFa_predict_flexBART(SEXP tree_drawsSEXP, SEXP tX_contSEXP, SEXP tX_catSEXP, SEXP treatSEXP, SEXP y_meanSEXP, SEXP y_sdSEXP, SEXP cat_levels_listSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -115,14 +166,15 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_flexBCF_compute_SATT", (DL_FUNC) &_flexBCF_compute_SATT, 10},
-    {"_flexBCF_compute_weighted_SATT", (DL_FUNC) &_flexBCF_compute_weighted_SATT, 11},
-    {"_flexBCF_flexBCF", (DL_FUNC) &_flexBCF_flexBCF, 32},
-    {"_flexBCF_predict_flexBART", (DL_FUNC) &_flexBCF_predict_flexBART, 9},
+    {"_flexBCFa_aBCF", (DL_FUNC) &_flexBCFa_aBCF, 41},
+    {"_flexBCFa_compute_SATT", (DL_FUNC) &_flexBCFa_compute_SATT, 10},
+    {"_flexBCFa_compute_weighted_SATT", (DL_FUNC) &_flexBCFa_compute_weighted_SATT, 11},
+    {"_flexBCFa_flexBCF", (DL_FUNC) &_flexBCFa_flexBCF, 32},
+    {"_flexBCFa_predict_flexBART", (DL_FUNC) &_flexBCFa_predict_flexBART, 9},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_flexBCF(DllInfo *dll) {
+RcppExport void R_init_flexBCFa(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

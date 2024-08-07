@@ -1,16 +1,18 @@
 
 
-#include "update_tree.h"
+#include "update_tree_het.h"
+#include "sigma_helpers.h"
 
 // convention: all control subjects listed first
 
 // [[Rcpp::export(".aBCF")]]
-Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
+Rcpp::List aBCF(Rcpp::NumericVector Y_train,
                    Rcpp::IntegerVector treated,
                    Rcpp::NumericMatrix tX_cont_mu_train,
                    Rcpp::IntegerMatrix tX_cat_mu_train,
                    Rcpp::NumericMatrix tX_cont_tau_train,
                    Rcpp::IntegerMatrix tX_cat_tau_train,
+                   Rcpp::NumericVector obs_weights,
                    Rcpp::LogicalVector unif_cuts_mu,
                    Rcpp::LogicalVector unif_cuts_tau,
                    Rcpp::Nullable<Rcpp::List> cutpoints_list_mu,
@@ -25,11 +27,12 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
                    Rcpp::Nullable<Rcpp::List> adj_support_list_tau,
                    bool sparse, double a_u, double b_u,
                    Rcpp::NumericVector mu0, Rcpp::NumericVector tau,
-                   double lambda, double nu,
+                   double lambda, double nu, double sigu_hyperprior,
                    int M_mu, int M_tau,
                    double alpha_mu, double beta_mu,
                    double alpha_tau, double beta_tau,
-                   int nd, int burn, int thin,
+                   int nd, int burn, int thin, bool save_samples,
+                   int batch_size, double acceptance_target,
                    bool verbose, int print_every)
 {
   Rcpp::RNGScope scope;
@@ -111,6 +114,10 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
   
   
   double* allfit_train = new double[n_train];
+  double* var_i = new double[n_train];
+  double* mu_train = new double[n_train]; // temp container for mu_i
+  double* tau_train = new double[n_train]; // temp container for tau_i only for treated! 
+  double* u_vec = new double[n_train];
   double* residual = new double[n_train];
   
   
@@ -126,13 +133,44 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
   di_train.p_cat_tau = p_cat_tau;
   di_train.p_tau = p_tau;
   di_train.treated = treated.begin();
+  di_train.var_i = var_i;
   
   if(p_cont_mu > 0) di_train.x_cont_mu = tX_cont_mu_train.begin();
   if(p_cont_tau > 0) di_train.x_cont_tau = tX_cont_tau_train.begin();
   if(p_cat_mu > 0) di_train.x_cat_mu = tX_cat_mu_train.begin();
   if(p_cat_tau > 0) di_train.x_cat_tau = tX_cat_tau_train.begin();
   di_train.rp = residual;
-  
+
+  Rcpp::Rcout << "Setting up sigma info" << std::endl;
+  sigma_info s_info;
+
+  double y2_sum = 0.0;
+  double ybar = 0.0;
+
+  for (int i = 0; i < n_train; i++) {
+    ybar += Y_train[i];
+    y2_sum += Y_train[i] * Y_train[i];
+  }
+
+  ybar /= n_train;
+  s_info.sigma_e = sqrt((y2_sum-n_train*ybar*ybar)/(n_train-1));
+  s_info.sigma_u = fabs(gen.normal(0., sigu_hyperprior));
+  s_info.ls_sigma_e = 0.0;
+  s_info.ls_sigma_u = 0.0;
+  s_info.ac_sigma_e = 0;
+  s_info.ac_sigma_u = 0;
+
+  double* prop_var_i = new double[n_train];
+
+  s_info.prop_var_i = prop_var_i;
+  s_info.u_sample = u_vec;
+
+  double* wts = new double[n_train];
+  for (int i = 0; i < n_train; i++) wts[i] = obs_weights[i];
+
+  Rcpp::Rcout << "Calculating sigma_i for the first time" << std::endl;
+  //TODO: init sigmas
+  calculate_sigma2_i(s_info.sigma_e, s_info.sigma_u, di_train.n, wts, var_i);
   // stuff for variable selection
   std::vector<double> theta_mu(p_mu, 1.0/ (double) p_mu);
   std::vector<double> theta_tau(p_tau, 1.0/ (double) p_tau);
@@ -196,15 +234,19 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
   
   
   if (verbose) {
-    Rcpp::Rcout << "For  mu trees: alpha = " << tree_pi_mu.alpha << ", beta = ", tree_pi_mu.beta << std::endl;
-    Rcpp::Rcout << "For tau trees: alpha = " << tree_pi_tau.alpha << ", beta = ", tree_pi_tau.beta << std::endl;
+    Rcpp::Rcout << "For  mu trees: alpha = " << tree_pi_mu.alpha << ", beta = " << tree_pi_mu.beta << std::endl;
+    Rcpp::Rcout << "For tau trees: alpha = " << tree_pi_tau.alpha << ", beta = " << tree_pi_tau.beta << std::endl;
   }
   // stuff for sigma
-  double sigma = 1.0;
-  double total_sq_resid = 0.0; // sum of squared residuals
-  double scale_post = 0.0;
-  double nu_post = 0.0;
+  // double sigma_e = 1.0; // parameter for error variance
+  // double sigma_u = 1.0; // parameter for RE variance
+  // double* total_sq_resid_i = new double[n_train]; //instead of double total_sq_resid = 0.0,  sum of squared residuals
+  for(int i = 0; i < n_train; i++) var_i[i] = 1.0;
+  // for(int i = 0; i < n_train; i++) total_sq_resid_i[i] = 0.0;
+  // double scale_post = 0.0;
+  // double nu_post = 0.0;
   
+
   // stuff for MCMC loop
   int total_draws = 1 + burn + (nd-1)*thin;
   int sample_index = 0;
@@ -220,7 +262,8 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
   std::vector<suff_stat> ss_train_mu_vec(M_mu);
   std::vector<suff_stat> ss_train_tau_vec(M_tau);
     
-  for(int i = 0; i < n_train; i++) allfit_train[i] = 0.0;
+  Rcpp::Rcout << "Initial traversal" << std::endl;
+  for (int i = 0; i < n_train; i++) allfit_train[i] = 0.0;
   
   // initial tree traversal for mu
   for(int m = 0; m < M_mu; m++){
@@ -244,12 +287,23 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
   // output containers
   Rcpp::List mu_tree_draws(nd);
   Rcpp::List tau_tree_draws(nd);
-  Rcpp::NumericVector sigma_samples(total_draws);
+  // Rcpp::NumericVector sigma_samples(total_draws);
   arma::mat var_count_samples_mu(total_draws,p_mu);
   arma::mat var_count_samples_tau(total_draws, p_tau);
-  //arma::mat tau_fit_samples = arma::zeros<arma::mat>(nd,n_treat);
+  arma::mat mu_fit_samples = arma::zeros<arma::mat>(1, 1);
+  arma::mat tau_fit_samples = arma::zeros<arma::mat>(1, 1);
+  arma::mat u_samples = arma::zeros<arma::mat>(1, 1);
+  Rcpp::NumericVector sigma_u_samples(total_draws);
+  Rcpp::NumericVector sigma_e_samples(total_draws);
+  
+  if (save_samples) {
+    mu_fit_samples.zeros(nd,n_train);
+    tau_fit_samples.zeros(nd,n_train);
+    u_samples.zeros(nd, n_train);
+  }
   
   
+  Rcpp::Rcout << "Starting MCMC" << std::endl;
   // main MCMC loop goes here
   for(int iter = 0; iter < total_draws; iter++){
     if(verbose){
@@ -264,6 +318,10 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
     
     // loop over the mu trees first
     total_accept = 0;
+    for (int i = 0; i < n_train; i++) {
+      mu_train[i] = 0.0;
+      tau_train[i] = 0.0;
+    }
     for(int m = 0; m < M_mu; m++){
       for(suff_stat_it ss_it = ss_train_mu_vec[m].begin(); ss_it != ss_train_mu_vec[m].end(); ++ss_it){
         // loop over the bottom nodes in m-th tree
@@ -277,7 +335,7 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
         }
       } // this whole loop is O(n)
       
-      update_tree_mu(t_mu_vec[m], ss_train_mu_vec[m], accept, sigma, di_train, tree_pi_mu, gen); // update the tree
+      update_tree_mu_het(t_mu_vec[m], ss_train_mu_vec[m], accept, di_train, tree_pi_mu, gen); // update the tree
       total_accept += accept;
   
       // now we need to update the value of allfit
@@ -287,6 +345,7 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
           // add fit of m-th tree back to allfit and subtract it from the value of the residual
           allfit_train[*it] += tmp_mu;
           residual[*it] -= tmp_mu;
+          mu_train[*it] += tmp_mu;
         }
       } // this loop is also O(n)
     } // closes loop over all of the trees
@@ -307,7 +366,7 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
         }
       } // this whole loop is O(n)
       
-      update_tree_tau(t_tau_vec[m], ss_train_tau_vec[m], accept, sigma, di_train, tree_pi_tau, gen); // update the tree
+      update_tree_tau_het(t_tau_vec[m], ss_train_tau_vec[m], accept, di_train, tree_pi_tau, gen); // update the tree
       total_accept += accept;
   
       // now we need to update the value of allfit
@@ -317,20 +376,20 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
           // add fit of m-th tree back to allfit and subtract it from the value of the residual
           allfit_train[*it + n_control] += tmp_mu;
           residual[*it + n_control] -= tmp_mu;
+          tau_train[*it + n_control] += tmp_mu; // only generates tau for treated!
         }
       } // this loop is also O(n)
     } // closes loop over all of the trees
     
     
     // ready to update sigma
-    total_sq_resid = 0.0;
-    //for(int i = 0; i < n_train; i++) total_sq_resid += pow(Y_train[i] - allfit_train[i], 2.0);
-    for(int i = 0; i < n_train; i++) total_sq_resid += pow(residual[i], 2.0); // sum of squared residuals
-    
-    scale_post = lambda * nu + total_sq_resid;
-    nu_post = nu + ( (double) n_train);
-    sigma = sqrt(scale_post/gen.chi_square(nu_post));
-    sigma_samples(iter) = sigma;
+    update_sigma_e(s_info, di_train, nu, lambda, wts, gen);
+    update_sigma_u(s_info, di_train, sigu_hyperprior, wts, gen);
+    draw_u(s_info, di_train, wts, gen);
+
+    if ((iter+1) % batch_size == 0) {
+      update_adaptive_ls(s_info, iter, batch_size, acceptance_target);
+    }
     if(sparse){
       update_theta_u(theta_mu, u_mu, var_count_mu, p_mu, a_u, b_u, gen);
       update_theta_u(theta_tau, u_tau, var_count_tau, p_tau, a_u, b_u, gen);
@@ -339,6 +398,8 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
     for(int j = 0; j < p_tau; j++) var_count_samples_tau(iter,j) = var_count_tau[j];
     
     if( (iter >= burn) && ( (iter - burn)%thin == 0)){
+
+      // Rcpp::Rcout << "Saving samples" << std::endl;
       sample_index = (int) ( (iter-burn)/thin);
       
       Rcpp::CharacterVector mu_tree_string_vec(M_mu);
@@ -349,6 +410,20 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
       mu_tree_draws[sample_index] = mu_tree_string_vec;
       tau_tree_draws[sample_index] = tau_tree_string_vec; // dump a character vector holding each tree's draws into an element of an Rcpp::List
       
+      for (int i = 0; i < n_train; i++) {
+        mu_fit_samples(sample_index, i) = mu_train[i];
+        // Rcpp::Rcout << i <<  ": Saved mu fit,  ";
+        tau_fit_samples(sample_index, i) = tau_train[i];
+        // Rcpp::Rcout << "Saved tau fit, " ;
+        u_samples(sample_index, i) = u_vec[i];
+        // Rcpp::Rcout << "Saved u draw. " ;
+      }
+
+      sigma_u_samples(sample_index) = s_info.sigma_u;
+      // Rcpp::Rcout << "Saved sig_u fit" << std::endl;
+      sigma_e_samples(sample_index) = s_info.sigma_e;
+
+      // Rcpp::Rcout << "Saved sig_e fit" << std::endl;
       /*
       //  for debugging purposes only!
       for(int m = 0; m < M_tau; m++){
@@ -365,9 +440,12 @@ Rcpp::List flexBCF(Rcpp::NumericVector Y_train,
   } // closes the main MCMC for loop
 
   Rcpp::List results;
-  results["sigma"] = sigma_samples;
+  results["sigma_u"] = sigma_u_samples;
+  results["sigma_e"] = sigma_e_samples;
   results["mu"] = mu_tree_draws;
   results["tau"] = tau_tree_draws;
+  results["mu_fit"] = mu_fit_samples;
+  results["tau_fit"] = tau_fit_samples;
   results["varcount_mu"] = var_count_samples_mu;
   results["varcount_tau"] = var_count_samples_tau;
   //results["tau_fit"] = tau_fit_samples;
