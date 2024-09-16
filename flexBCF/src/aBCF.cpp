@@ -293,8 +293,8 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
   arma::mat mu_fit_samples = arma::zeros<arma::mat>(1, 1);
   arma::mat tau_fit_samples = arma::zeros<arma::mat>(1, 1);
   arma::mat u_samples = arma::zeros<arma::mat>(1, 1);
-  Rcpp::NumericVector sigma_u_samples(total_draws);
-  Rcpp::NumericVector sigma_e_samples(total_draws);
+  Rcpp::NumericVector sigma_u_samples(nd);
+  Rcpp::NumericVector sigma_e_samples(nd);
   
   if (save_samples) {
     mu_fit_samples.zeros(nd,n_train);
@@ -442,6 +442,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
   Rcpp::List results;
   results["sigma_u"] = sigma_u_samples;
   results["sigma_e"] = sigma_e_samples;
+  results["u_samples"] = u_samples;
   results["mu"] = mu_tree_draws;
   results["tau"] = tau_tree_draws;
   results["mu_fit"] = mu_fit_samples;

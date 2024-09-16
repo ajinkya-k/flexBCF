@@ -22,8 +22,8 @@ aBCF <- function(Y_train,
 {
   
   # Standardize the Y's
-  y_mean <- mean(Y_train)
-  y_sd <- stats::sd(Y_train)
+  y_mean <- weighted.mean(Y_train, obs_weights)
+  y_sd <- sqrt(Hmisc::wtd.var(Y_train, obs_weights))
   std_Y <- (Y_train - y_mean)/y_sd
   nu <- 3
   lambda <- stats::qchisq(0.1, df = nu)/nu
@@ -66,6 +66,11 @@ aBCF <- function(Y_train,
   results[["sigma"]] <- fit$sigma
   results[["mu_trees"]] <- fit$mu
   results[["tau_trees"]] <- fit$tau
+  results[["mu_fit"]] <- fit$mu_fit
+  results[["tau_fit"]] <- fit$tau_fit
+  results[["sigma_u"]] <- fit$sigma_u
+  results[["sigma_e"]] <- fit$sigma_e
+  results[["u"]] <- fit$u_samples
   results[["varcount_mu"]] <- fit$varcount_mu
   results[["varcount_tau"]] <- fit$varcount_tau
   results[["y_mean"]] <- y_mean
