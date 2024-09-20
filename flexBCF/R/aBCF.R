@@ -18,6 +18,7 @@ aBCF <- function(Y_train,
                     sigu_hyperprior = 1.0,
                     nd = 1000, burn = 1000, thin = 1, save_samples = TRUE,
                     batch_size = 100, acceptance_target=0.44,
+                 nu=3, lambda=NULL,
                     verbose = TRUE, print_every = floor( (nd*thin + burn))/10)
 {
   
@@ -25,8 +26,11 @@ aBCF <- function(Y_train,
   y_mean <- weighted.mean(Y_train, obs_weights)
   y_sd <- sqrt(Hmisc::wtd.var(Y_train, obs_weights))
   std_Y <- (Y_train - y_mean)/y_sd
-  nu <- 3
-  lambda <- stats::qchisq(0.1, df = nu)/nu
+  if (is.null(lambda)) {
+    lambda <- mean(obs_weights) * stats::qchisq(0.1, df = nu)/nu  
+    if (verbose) print(paste('lambda is', lambda))
+  }
+  
   mu0 <- c(0,0)
   tau <- c(1/sqrt(M_mu), 1/sqrt(M_tau))
   
