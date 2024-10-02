@@ -1,25 +1,25 @@
 aBCF <- function(Y_train,
-                    treated,
-                    obs_weights,
-                    X_cont_mu = matrix(0, nrow = 1, ncol = 1),
-                    X_cat_mu = matrix(0, nrow = 1, ncol = 1),
-                    X_cont_tau = matrix(0, nrow = 1, ncol = 1),
-                    X_cat_tau = matrix(0, nrow = 1, ncol = 1),
-                    unif_cuts_mu = rep(TRUE, times = ncol(X_cont_mu)),
-                    unif_cuts_tau = rep(TRUE, times = ncol(X_cont_tau)),
-                    cutpoints_list_mu = NULL,
-                    cutpoints_list_tau = NULL,
-                    cat_levels_list_mu = NULL,
-                    cat_levels_list_tau = NULL,
-                    sparse = TRUE,  
-                    M_mu = 200, M_tau = 200,
-                    alpha_mu = 0.95, beta_mu = 2,
-                    alpha_tau = 0.95, beta_tau = 2,
-                    sigu_hyperprior = 1.0,
-                    nd = 1000, burn = 1000, thin = 1, save_samples = TRUE,
-                    batch_size = 100, acceptance_target=0.44,
+                 treated,
+                 obs_weights,
+                 X_cont_mu = matrix(0, nrow = 1, ncol = 1),
+                 X_cat_mu = matrix(0, nrow = 1, ncol = 1),
+                 X_cont_tau = matrix(0, nrow = 1, ncol = 1),
+                 X_cat_tau = matrix(0, nrow = 1, ncol = 1),
+                 unif_cuts_mu = rep(TRUE, times = ncol(X_cont_mu)),
+                 unif_cuts_tau = rep(TRUE, times = ncol(X_cont_tau)),
+                 cutpoints_list_mu = NULL,
+                 cutpoints_list_tau = NULL,
+                 cat_levels_list_mu = NULL,
+                 cat_levels_list_tau = NULL,
+                 sparse = TRUE,  
+                 M_mu = 200, M_tau = 200,
+                 alpha_mu = 0.95, beta_mu = 2,
+                 alpha_tau = 0.95, beta_tau = 2,
+                 sigu_hyperprior = 1.0,
+                 nd = 1000, burn = 1000, thin = 1, save_samples = TRUE,
+                 batch_size = 100, acceptance_target=0.44,
                  nu=3, lambda=NULL,
-                    verbose = TRUE, print_every = floor( (nd*thin + burn))/10)
+                 verbose = TRUE, print_every = floor( (nd*thin + burn))/10)
 {
   
   # Standardize the Y's
@@ -40,45 +40,44 @@ aBCF <- function(Y_train,
   adj_support_list_tau <- NULL
   
   fit <- .aBCF(Y_train = std_Y,
-                  treated = treated,
-                  tX_cont_mu_train = t(X_cont_mu),
-                  tX_cat_mu_train = t(X_cat_mu),
-                  tX_cont_tau_train = t(X_cont_tau),
-                  tX_cat_tau_train = t(X_cat_tau),
-                  obs_weights = obs_weights,
-                  unif_cuts_mu = unif_cuts_mu,
-                  unif_cuts_tau = unif_cuts_tau,
-                  cutpoints_list_mu = cutpoints_list_mu,
-                  cutpoints_list_tau = cutpoints_list_tau,
-                  cat_levels_list_mu = cat_levels_list_mu,
-                  cat_levels_list_tau = cat_levels_list_tau,
-                  graph_split_mu = graph_split_mu,
-                  graph_split_tau = graph_split_tau,
-                  graph_cut_type_mu = 0, graph_cut_type_tau = 0,
-                  adj_support_list_mu = adj_support_list_mu,
-                  adj_support_list_tau = adj_support_list_tau,
-                  sparse = sparse, a_u = 1, b_u = 1,
-                  mu0 = mu0, tau = tau, #THIS TAU IS PRIOR VAR, NOT TAU FN,SRY!
-                  lambda = lambda, nu = nu, sigu_hyperprior = sigu_hyperprior,
-                  M_mu = M_mu, M_tau = M_tau,
-                  alpha_mu = alpha_mu, beta_mu = beta_mu,
-                  alpha_tau = alpha_tau, beta_tau = beta_tau,
-                  nd = nd, burn = burn, thin = thin, save_samples = save_samples,
-                  batch_size = batch_size, acceptance_target = acceptance_target,
-                  verbose = verbose, print_every = print_every)
+               treated = treated,
+               tX_cont_mu_train = t(X_cont_mu),
+               tX_cat_mu_train = t(X_cat_mu),
+               tX_cont_tau_train = t(X_cont_tau),
+               tX_cat_tau_train = t(X_cat_tau),
+               obs_weights = obs_weights,
+               unif_cuts_mu = unif_cuts_mu,
+               unif_cuts_tau = unif_cuts_tau,
+               cutpoints_list_mu = cutpoints_list_mu,
+               cutpoints_list_tau = cutpoints_list_tau,
+               cat_levels_list_mu = cat_levels_list_mu,
+               cat_levels_list_tau = cat_levels_list_tau,
+               graph_split_mu = graph_split_mu,
+               graph_split_tau = graph_split_tau,
+               graph_cut_type_mu = 0, graph_cut_type_tau = 0,
+               adj_support_list_mu = adj_support_list_mu,
+               adj_support_list_tau = adj_support_list_tau,
+               sparse = sparse, a_u = 1, b_u = 1,
+               mu0 = mu0, tau = tau, #THIS TAU IS PRIOR VAR, NOT TAU FN,SRY!
+               lambda = lambda, nu = nu, sigu_hyperprior = sigu_hyperprior,
+               M_mu = M_mu, M_tau = M_tau,
+               alpha_mu = alpha_mu, beta_mu = beta_mu,
+               alpha_tau = alpha_tau, beta_tau = beta_tau,
+               nd = nd, burn = burn, thin = thin, save_samples = save_samples,
+               batch_size = batch_size, acceptance_target = acceptance_target,
+               verbose = verbose, print_every = print_every)
   results <- list()
-  results[["sigma"]] <- fit$sigma
-  results[["mu_trees"]] <- fit$mu
-  results[["tau_trees"]] <- fit$tau
-  results[["mu_fit"]] <- fit$mu_fit
-  results[["tau_fit"]] <- fit$tau_fit
-  results[["sigma_u"]] <- fit$sigma_u
-  results[["sigma_e"]] <- fit$sigma_e
-  results[["u"]] <- fit$u_samples
-  results[["varcount_mu"]] <- fit$varcount_mu
+  results[["mu_trees"]]     <- fit$mu
+  results[["tau_trees"]]    <- fit$tau
+  results[["mu_fit"]]       <- fit$mu_fit    * y_sd
+  results[["tau_fit"]]      <- fit$tau_fit   * y_sd
+  results[["sigma_u"]]      <- fit$sigma_u   * y_sd
+  results[["sigma_e"]]      <- fit$sigma_e   * y_sd
+  results[["u"]]            <- fit$u_samples * y_sd
+  results[["varcount_mu"]]  <- fit$varcount_mu
   results[["varcount_tau"]] <- fit$varcount_tau
-  results[["y_mean"]] <- y_mean
-  results[["y_sd"]] <- y_sd
+  results[["y_mean"]]       <- y_mean
+  results[["y_sd"]]         <- y_sd
   results[["cat_levels_list"]] <- list(mu = cat_levels_list_mu, tau = cat_levels_list_tau)
   return(results)
 }
