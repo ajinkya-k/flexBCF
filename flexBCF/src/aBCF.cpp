@@ -241,7 +241,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
   // double sigma_e = 1.0; // parameter for error variance
   // double sigma_u = 1.0; // parameter for RE variance
   // double* total_sq_resid_i = new double[n_train]; //instead of double total_sq_resid = 0.0,  sum of squared residuals
-  for(int i = 0; i < n_train; i++) var_i[i] = 1.0;
+  //for(int i = 0; i < n_train; i++) var_i[i] = 1.0;
   // for(int i = 0; i < n_train; i++) total_sq_resid_i[i] = 0.0;
   // double scale_post = 0.0;
   // double nu_post = 0.0;
