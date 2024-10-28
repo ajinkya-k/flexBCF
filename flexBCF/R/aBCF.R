@@ -19,7 +19,8 @@ aBCF <- function(Y_train,
                  nd = 1000, burn = 1000, thin = 1, save_samples = TRUE,
                  batch_size = 100, acceptance_target=0.44,
                  nu=3, lambda=NULL,
-                 verbose = TRUE, print_every = floor( (nd*thin + burn))/10)
+                 verbose = TRUE, print_every = floor( (nd*thin + burn))/10,
+                 chain_num=1)
 {
   
   # Standardize the Y's
@@ -67,6 +68,7 @@ aBCF <- function(Y_train,
                batch_size = batch_size, acceptance_target = acceptance_target,
                verbose = verbose, print_every = print_every)
   results <- list()
+  results[["chain_num"]]    <- chain_num
   results[["mu_trees"]]     <- fit$mu
   results[["tau_trees"]]    <- fit$tau
   results[["mu_fit"]]       <- fit$mu_fit    * y_sd
