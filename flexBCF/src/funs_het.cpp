@@ -57,13 +57,14 @@ void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tr
     else{
       P = 1.0/pow(tree_pi.tau, 2.0); // precision of jump mu
       Theta = tree_pi.mu0/pow(tree_pi.tau, 2.0);
-      double s2; //container for variance for ease of reading the code, used in loop below
+      /*double s2; //container for variance for ease of reading the code, used in loop below
 
       for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
         s2 = di.var_i[*it];
         Theta += di.rp[*it]/s2;
         P += 1/s2;
       }
+      */
 
       post_sd = sqrt(1.0/P);
       post_mean = Theta/P;
@@ -87,7 +88,7 @@ void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &t
     else{
       P = 1.0/pow(tree_pi.tau, 2.0); // precision of jump mu
       Theta = tree_pi.mu0/pow(tree_pi.tau, 2.0);
-      double s2;
+      /*double s2;
 
       // remember that ss_it->second contains the index within the treated set and not the whole dataset
       // we must offset by di.n_control!
@@ -96,6 +97,7 @@ void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &t
         Theta += di.rp[*it + di.n_control]/s2;
         P += 1/s2;
       }
+      */
 
       post_sd = sqrt(1.0/P);
       post_mean = Theta/P;

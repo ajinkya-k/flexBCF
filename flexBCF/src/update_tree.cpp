@@ -68,7 +68,7 @@ void grow_tree_mu(tree &t, suff_stat &ss_train, int &accept, double &sigma, data
   
   // likelihood ratio also needs to include some constants from prior on jumps condition on tree
   // in GROW move, the new tree has one extra leaf so there's an additional factor of tau^(-1) * exp(-mu0^2/2tau^2) from leaf prior in the numerator
-  double log_like_ratio = nxl_lil + nxr_lil - nx_lil - 1.0 * log(tree_pi.tau) - 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  double log_like_ratio = /*nxl_lil + nxr_lil - nx_lil*/ - 1.0 * log(tree_pi.tau) - 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
   
   double log_alpha = log_like_ratio + log_prior_ratio + log_trans_ratio; // MH ratio
   if(log_alpha > 0) log_alpha = 0.0; // if MH ratio greater than 1, we set it equal to 1. this is almost never needed
@@ -186,7 +186,7 @@ void grow_tree_tau(tree &t, suff_stat &ss_train, int &accept, double &sigma, dat
   
   // likelihood ratio also needs to include some constants from prior on jumps condition on tree
   // in GROW move, the new tree has one extra leaf so there's an additional factor of tau^(-1) * exp(-mu0^2/2tau^2) from leaf prior in the numerator
-  double log_like_ratio = nxl_lil + nxr_lil - nx_lil - 1.0 * log(tree_pi.tau) - 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  double log_like_ratio = /*nxl_lil + nxr_lil - nx_lil*/ - 1.0 * log(tree_pi.tau) - 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
   
   double log_alpha = log_like_ratio + log_prior_ratio + log_trans_ratio; // MH ratio
   if(log_alpha > 0) log_alpha = 0.0; // if MH ratio greater than 1, we set it equal to 1. this is almost never needed
@@ -287,7 +287,7 @@ void prune_tree_mu(tree &t, suff_stat &ss_train, int &accept, double &sigma, dat
   
   // old tree has one more leaf node than new tree so there is additional factor of
   // (tau)^(-1) * exp(-mu0^2/(2 * tau^2)) in denominator of likelihood ratio that comes from the prior on leafs
-  double log_like_ratio = nx_lil - nxl_lil - nxr_lil + log(tree_pi.tau) + 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  double log_like_ratio = /*nx_lil - nxl_lil - nxr_lil*/ + log(tree_pi.tau) + 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
   
   double log_alpha = log_like_ratio + log_prior_ratio + log_trans_ratio;
   if(log_alpha > 0) log_alpha = 0; // if MH greater than we, set it equal to 1
@@ -387,7 +387,7 @@ void prune_tree_tau(tree &t, suff_stat &ss_train, int &accept, double &sigma, da
   
   // old tree has one more leaf node than new tree so there is additional factor of
   // (tau)^(-1) * exp(-mu0^2/(2 * tau^2)) in denominator of likelihood ratio that comes from the prior on leafs
-  double log_like_ratio = nx_lil - nxl_lil - nxr_lil + log(tree_pi.tau) + 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  double log_like_ratio = /*nx_lil - nxl_lil - nxr_lil*/ + log(tree_pi.tau) + 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
   
   double log_alpha = log_like_ratio + log_prior_ratio + log_trans_ratio;
   if(log_alpha > 0) log_alpha = 0; // if MH greater than we, set it equal to 1

@@ -357,9 +357,10 @@ void draw_leaf_mu(tree &t, suff_stat &ss, double &sigma, data_info &di, tree_pri
     bn = t.get_ptr(ss_it->first);
     if(bn == 0) Rcpp::stop("[draw_mu]: could not find node that is in suff stat map in the tree");
     else{
-      P = 1.0/pow(tree_pi.tau, 2.0) + ( (double) ss_it->second.size())/pow(sigma, 2.0); // precision of jump mu
+      //P = 1.0/pow(tree_pi.tau, 2.0) + ( (double) ss_it->second.size())/pow(sigma, 2.0); // precision of jump mu
+      P = 1.0/pow(tree_pi.tau, 2.0);
       Theta = tree_pi.mu0/pow(tree_pi.tau, 2.0);
-      for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) Theta += di.rp[*it]/pow(sigma,2.0);
+      //for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) Theta += di.rp[*it]/pow(sigma,2.0);
 
       post_sd = sqrt(1.0/P);
       post_mean = Theta/P;
@@ -381,11 +382,12 @@ void draw_leaf_tau(tree &t, suff_stat &ss, double &sigma, data_info &di, tree_pr
     bn = t.get_ptr(ss_it->first);
     if(bn == 0) Rcpp::stop("[draw_mu]: could not find node that is in suff stat map in the tree");
     else{
-      P = 1.0/pow(tree_pi.tau, 2.0) + ( (double) ss_it->second.size())/pow(sigma, 2.0); // precision of jump mu
+      //P = 1.0/pow(tree_pi.tau, 2.0) + ( (double) ss_it->second.size())/pow(sigma, 2.0); // precision of jump mu
+      P = 1.0/pow(tree_pi.tau, 2.0);
       Theta = tree_pi.mu0/pow(tree_pi.tau, 2.0);
       // remember that ss_it->second contains the index within the treated set and not the whole dataset
       // we must offset by di.n_control!
-      for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) Theta += di.rp[*it + di.n_control]/pow(sigma,2.0);
+      //for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) Theta += di.rp[*it + di.n_control]/pow(sigma,2.0);
 
       post_sd = sqrt(1.0/P);
       post_mean = Theta/P;

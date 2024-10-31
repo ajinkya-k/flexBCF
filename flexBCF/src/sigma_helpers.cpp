@@ -26,30 +26,7 @@ void calculate_sigma2_i(double sigma_e, double sigma_u, int n, double* wts, doub
 
 
 double calculate_lp_diff(sigma_info &si, data_info &di, double log_prior_current, double log_prior_proposed) {
-  // Log likelihood requires two different sums: sum of the log of sigma_i^2, and sum of resid/sigma_i^2
-  double sum_log_sig2_i_current     = 0;
-  double sum_r_over_sig2_i_current  = 0;
-  double sum_log_sig2_i_proposed    = 0;
-  double sum_r_over_sig2_i_proposed = 0;
-
-  double r, r2, sigma2_current, sigma2_proposed;
-  for (size_t i=0;i<di.n;i++) {
-    r = di.rp[i];
-    r2 = r*r;
-    sigma2_current  = di.var_i[i];
-    sigma2_proposed = si.prop_var_i[i];
-    
-    sum_log_sig2_i_current  += log(sigma2_current);
-    sum_log_sig2_i_proposed += log(sigma2_proposed);
-
-    sum_r_over_sig2_i_current  += r2/sigma2_current;
-    sum_r_over_sig2_i_proposed += r2/sigma2_proposed;
-  }
-  // Now compose the log posteriors: log prior + log likelihood
-  double lp_current  = log_prior_current  -0.5 * sum_log_sig2_i_current  - 0.5 * sum_r_over_sig2_i_current;
-  double lp_proposed = log_prior_proposed -0.5 * sum_log_sig2_i_proposed - 0.5 * sum_r_over_sig2_i_proposed;
-
-  double lp_diff = lp_proposed - lp_current;
+  double lp_diff = log_prior_proposed - log_prior_current;
   return(lp_diff);
 }
 
@@ -131,16 +108,7 @@ void update_sigma_u(sigma_info& si, data_info &di, double hyperprior, double* wt
 
 
 void draw_u(sigma_info &si, data_info& di, double* w, RNG &gen) {
-  double v_y = si.sigma_e * si.sigma_e;
-  double v_u = si.sigma_u * si.sigma_u;
-  double prior_prec = 1/v_u;
-  double r, data_prec, post_prec, post_sd, post_mean;
   for(size_t i=0;i<di.n;i++) {
-    data_prec = w[i] / (v_y);
-    post_prec = prior_prec + data_prec;
-    post_sd = sqrt(1/post_prec);
-    post_mean = data_prec * di.rp[i] / post_prec;
-
-    si.u_sample[i] = gen.normal(post_mean, post_sd);
+    si.u_sample[i] = gen.normal(0, si.sigma_u);
   }
 }
