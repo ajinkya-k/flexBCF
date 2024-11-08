@@ -71,7 +71,7 @@ aBCF <- function(Y_train,
   results[["chain_num"]]    <- chain_num
   results[["mu_trees"]]     <- fit$mu
   results[["tau_trees"]]    <- fit$tau
-  results[["mu_fit"]]       <- fit$mu_fit    * y_sd
+  results[["mu_fit"]]       <- fit$mu_fit    * y_sd + y_mean
   results[["tau_fit"]]      <- fit$tau_fit   * y_sd
   results[["sigma_u"]]      <- fit$sigma_u   * y_sd
   results[["sigma_e"]]      <- fit$sigma_e   * y_sd

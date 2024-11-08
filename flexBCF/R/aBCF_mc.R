@@ -1,11 +1,23 @@
 aBCF_mc <- function(...,
                     seed=1234,
                     n_chains=4, 
-                    n_cores=4) {
+                    n_cores=4,
+                    verbose=TRUE) {
   
-  future::plan(future::multisession, workers=n_cores)
-  print('Running in parallel')
-  fit <- furrr::future_pmap(list(chain_num=1:n_chains), aBCF, ..., .options=furrr::furrr_options(seed=seed))
+  if (n_cores > 1) {
+    future::plan(future::multisession, workers=n_cores)
+    if (verbose) {
+      print('Running in parallel')  
+    }
+    fit <- furrr::future_pmap(list(chain_num=1:n_chains), aBCF, verbose=verbose,..., .options=furrr::furrr_options(seed=seed))  
+  } else {
+    if (verbose) {
+      print('Running in series')  
+    }
+    set.seed(seed)
+    fit <- purrr::pmap(list(chain_num=1:n_chains), aBCF, verbose=verbose,...)
+  }
+  
   
   results <- list()
   results$sigma_u   <- do.call(what=cbind, lapply(fit, \(x) x$sigma_u))

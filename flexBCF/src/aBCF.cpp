@@ -141,7 +141,9 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
   if(p_cat_tau > 0) di_train.x_cat_tau = tX_cat_tau_train.begin();
   di_train.rp = residual;
 
-  Rcpp::Rcout << "Setting up sigma info" << std::endl;
+  if (verbose) {
+    Rcpp::Rcout << "Setting up sigma info" << std::endl;
+  }
   sigma_info s_info;
 
   double y2_sum = 0.0;
@@ -168,7 +170,9 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
   double* wts = new double[n_train];
   for (int i = 0; i < n_train; i++) wts[i] = obs_weights[i];
 
-  Rcpp::Rcout << "Calculating sigma_i for the first time" << std::endl;
+  if (verbose) {
+    Rcpp::Rcout << "Calculating sigma_i for the first time" << std::endl;
+  }
   //TODO: init sigmas
   calculate_sigma2_i(s_info.sigma_e, s_info.sigma_u, di_train.n, wts, var_i);
   // stuff for variable selection
@@ -261,8 +265,10 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
 
   std::vector<suff_stat> ss_train_mu_vec(M_mu);
   std::vector<suff_stat> ss_train_tau_vec(M_tau);
-    
-  Rcpp::Rcout << "Initial traversal" << std::endl;
+
+  if (verbose) {  
+    Rcpp::Rcout << "Initial traversal" << std::endl;
+  }
   for (int i = 0; i < n_train; i++) allfit_train[i] = 0.0;
   
   // initial tree traversal for mu
@@ -302,8 +308,9 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
     u_samples.zeros(nd, n_train);
   }
   
-  
-  Rcpp::Rcout << "Starting MCMC" << std::endl;
+  if (verbose) {
+    Rcpp::Rcout << "Starting MCMC" << std::endl;
+  }
   // main MCMC loop goes here
   for(int iter = 0; iter < total_draws; iter++){
     if(verbose){
@@ -314,6 +321,10 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         Rcpp::Rcout << "  MCMC Iteration: " << iter << " of " << total_draws << "; Sampling" << std::endl;
         Rcpp::checkUserInterrupt();
       }
+    }
+
+    if (verbose) {
+      Rcpp::Rcout << "iter " << iter << std::endl;
     }
     
     // loop over the mu trees first
