@@ -13,13 +13,14 @@ aBCF <- function(Y_train,
                  cat_levels_list_tau = NULL,
                  sparse = TRUE,  
                  M_mu = 200, M_tau = 200,
-                 alpha_mu = 0.95, beta_mu = 2,
-                 alpha_tau = 0.95, beta_tau = 2,
+                 sd_mu=2, alpha_mu = 0.95, beta_mu = 2,
+                 sd_tau=1, alpha_tau = 0.95, beta_tau = 2,
+                 use_halfnormal_scales=FALSE,
                  sigu_hyperprior = 1.0,
                  nd = 1000, burn = 1000, thin = 1, save_samples = TRUE,
                  batch_size = 100, acceptance_target=0.44,
                  nu=3, lambda=NULL,
-                 verbose = TRUE, print_every = floor( (nd*thin + burn))/10,
+                 verbose = TRUE, print_every = floor((nd*thin + burn))/10,
                  chain_num=1)
 {
   
@@ -33,7 +34,7 @@ aBCF <- function(Y_train,
   }
   
   mu0 <- c(0,0)
-  tau <- c(1/sqrt(M_mu), 1/sqrt(M_tau))
+  tau <- c(sd_mu/sqrt(M_mu), sd_tau/sqrt(M_tau))
   
   graph_split_mu <- rep(FALSE, times = ncol(X_cat_mu))
   graph_split_tau <- rep(FALSE, times = ncol(X_cat_tau))
@@ -64,6 +65,7 @@ aBCF <- function(Y_train,
                M_mu = M_mu, M_tau = M_tau,
                alpha_mu = alpha_mu, beta_mu = beta_mu,
                alpha_tau = alpha_tau, beta_tau = beta_tau,
+               use_halfnormal_scales=use_halfnormal_scales,
                nd = nd, burn = burn, thin = thin, save_samples = save_samples,
                batch_size = batch_size, acceptance_target = acceptance_target,
                verbose = verbose, print_every = print_every)
@@ -78,8 +80,17 @@ aBCF <- function(Y_train,
   results[["u"]]            <- fit$u_samples * y_sd
   results[["varcount_mu"]]  <- fit$varcount_mu
   results[["varcount_tau"]] <- fit$varcount_tau
+  results[["mu_scale"]]     <- fit$mu_scale
+  results[["tau_scale"]]    <- fit$tau_scale
+  results[["acceptance"]]   <- fit$acceptance
   results[["y_mean"]]       <- y_mean
   results[["y_sd"]]         <- y_sd
   results[["cat_levels_list"]] <- list(mu = cat_levels_list_mu, tau = cat_levels_list_tau)
+  
+  names(results[["acceptance"]]) <- c('mu_scale', 'tau_scale', 'sigma_e', 'sigma_u')
+  if (!use_halfnormal_scales) {
+    results[["acceptance"]] <- results[["acceptance"]][3:4]
+  }
+  
   return(results)
 }

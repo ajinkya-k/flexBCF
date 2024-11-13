@@ -12,11 +12,12 @@ double compute_lil_mu_het(suff_stat &ss, int &nid, data_info &di, tree_prior_inf
   double P = 1.0/pow(tree_pi.tau, 2.0); // precision of jump mu
   double Theta = tree_pi.mu0/pow(tree_pi.tau, 2.0);
   double s2;
+  double scale2 = pow(di.mu_scale, 2.0);
   
   for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
     s2 = di.var_i[*it];
-    Theta += di.rp[*it]/s2;
-    P += 1/s2;
+    Theta += di.rp[*it]*scale2/s2;
+    P += scale2/s2;
   }
   return(-0.5 * log(P) + 0.5 * pow(Theta,2.0) / P);
 }
@@ -29,12 +30,14 @@ double compute_lil_tau_het(suff_stat &ss, int &nid, data_info &di, tree_prior_in
   double P = 1.0/pow(tree_pi.tau, 2.0); // precision of jump mu
   double Theta = tree_pi.mu0/pow(tree_pi.tau, 2.0);
   double s2;
+  double scale2 = pow(di.tau_scale, 2.0);
+
   // remember that ss_it->second contains the index within the treated set and not the whole dataset
   // we must offset by di.n_control!
   for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
     s2 = di.var_i[*it + di.n_control];
-    Theta += di.rp[*it + di.n_control]/s2;
-    P += 1/s2;
+    Theta += di.rp[*it + di.n_control]*scale2/s2;
+    P += scale2/s2;
   }
   return(-0.5 * log(P) + 0.5 * pow(Theta,2.0) / P);
 }
@@ -51,6 +54,7 @@ void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tr
   double post_mean;
   tree::tree_p bn; // we are modifying bn so we need a pointer not a constant pointer
   
+  int i = -1;
   for(suff_stat_it ss_it = ss.begin(); ss_it != ss.end(); ++ss_it){
     bn = t.get_ptr(ss_it->first);
     if(bn == 0) Rcpp::stop("[draw_mu]: could not find node that is in suff stat map in the tree");
@@ -58,12 +62,18 @@ void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tr
       P = 1.0/pow(tree_pi.tau, 2.0); // precision of jump mu
       Theta = tree_pi.mu0/pow(tree_pi.tau, 2.0);
       double s2; //container for variance for ease of reading the code, used in loop below
+      double scale2 = pow(di.mu_scale, 2.0);
 
       for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
         s2 = di.var_i[*it];
-        Theta += di.rp[*it]/s2;
-        P += 1/s2;
+        Theta += di.rp[*it]*scale2/s2;
+        P += scale2/s2;
       }
+
+      i +=1;
+      Rcpp::Rcout << "lfmu.node " << i << std::endl;
+      Rcpp::Rcout << "lfmu.Theta " << Theta << std::endl;
+      Rcpp::Rcout << "lfmu.P " << P << std::endl;
 
       post_sd = sqrt(1.0/P);
       post_mean = Theta/P;
@@ -81,6 +91,7 @@ void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &t
   double post_mean;
   tree::tree_p bn; // we are modifying bn so we need a pointer not a constant pointer
   
+  int i = -1;
   for(suff_stat_it ss_it = ss.begin(); ss_it != ss.end(); ++ss_it){
     bn = t.get_ptr(ss_it->first);
     if(bn == 0) Rcpp::stop("[draw_mu]: could not find node that is in suff stat map in the tree");
@@ -88,14 +99,20 @@ void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &t
       P = 1.0/pow(tree_pi.tau, 2.0); // precision of jump mu
       Theta = tree_pi.mu0/pow(tree_pi.tau, 2.0);
       double s2;
+      double scale2 = pow(di.tau_scale, 2.0);
 
       // remember that ss_it->second contains the index within the treated set and not the whole dataset
       // we must offset by di.n_control!
       for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
         s2 = di.var_i[*it + di.n_control];
-        Theta += di.rp[*it + di.n_control]/s2;
-        P += 1/s2;
+        Theta += di.rp[*it + di.n_control]*scale2/s2;
+        P += scale2/s2;
       }
+
+      i +=1;
+      Rcpp::Rcout << "lftau.node " << i << std::endl;
+      Rcpp::Rcout << "lftau.Theta " << Theta << std::endl;
+      Rcpp::Rcout << "lftau.P " << P << std::endl;
 
       post_sd = sqrt(1.0/P);
       post_mean = Theta/P;

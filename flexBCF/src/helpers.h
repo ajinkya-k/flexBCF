@@ -79,6 +79,10 @@ public:
     
   double* rp; // partial residual;
   double* var_i; // current value of variance for each unit
+
+  double mu_scale;
+  double tau_scale;
+
   data_info(){
     n = 0;
     p_cont_mu = 0; p_cat_mu = 0; p_mu = 0;
@@ -87,6 +91,7 @@ public:
     x_cont_mu = 0; x_cat_mu = 0;
     x_cont_tau = 0; x_cat_tau = 0;
     rp = 0;
+    mu_scale=0; tau_scale=0;
   }
 };
 
