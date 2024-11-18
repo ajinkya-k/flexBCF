@@ -78,6 +78,7 @@ public:
   int* x_cat_tau; // pointer to matrix of categorical predictors for tau (levels coded as integers, beginning with 0)
     
   double* rp; // partial residual;
+  double* rp_proposed; // holder for proposed partial resids
   double* var_i; // current value of variance for each unit
 
   double mu_scale;

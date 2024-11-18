@@ -54,7 +54,6 @@ void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tr
   double post_mean;
   tree::tree_p bn; // we are modifying bn so we need a pointer not a constant pointer
   
-  int i = -1;
   for(suff_stat_it ss_it = ss.begin(); ss_it != ss.end(); ++ss_it){
     bn = t.get_ptr(ss_it->first);
     if(bn == 0) Rcpp::stop("[draw_mu]: could not find node that is in suff stat map in the tree");
@@ -69,11 +68,6 @@ void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tr
         Theta += di.rp[*it]*scale2/s2;
         P += scale2/s2;
       }
-
-      i +=1;
-      Rcpp::Rcout << "lfmu.node " << i << std::endl;
-      Rcpp::Rcout << "lfmu.Theta " << Theta << std::endl;
-      Rcpp::Rcout << "lfmu.P " << P << std::endl;
 
       post_sd = sqrt(1.0/P);
       post_mean = Theta/P;
@@ -91,7 +85,6 @@ void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &t
   double post_mean;
   tree::tree_p bn; // we are modifying bn so we need a pointer not a constant pointer
   
-  int i = -1;
   for(suff_stat_it ss_it = ss.begin(); ss_it != ss.end(); ++ss_it){
     bn = t.get_ptr(ss_it->first);
     if(bn == 0) Rcpp::stop("[draw_mu]: could not find node that is in suff stat map in the tree");
@@ -108,11 +101,6 @@ void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &t
         Theta += di.rp[*it + di.n_control]*scale2/s2;
         P += scale2/s2;
       }
-
-      i +=1;
-      Rcpp::Rcout << "lftau.node " << i << std::endl;
-      Rcpp::Rcout << "lftau.Theta " << Theta << std::endl;
-      Rcpp::Rcout << "lftau.P " << P << std::endl;
 
       post_sd = sqrt(1.0/P);
       post_mean = Theta/P;

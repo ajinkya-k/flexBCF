@@ -39,8 +39,8 @@ void update_adaptive_ls(sigma_info& si, size_t iter, int batch_size, double ac_t
 void update_sigma_e(sigma_info &si, data_info &di, double nu, double lambda, double* wts, RNG& gen);
 void update_sigma_u(sigma_info& si, data_info &di, double hyperprior, double* wts, RNG &gen);
 void draw_u(sigma_info &si, data_info& di, double *w, RNG &gen);
-void update_mu_scale(sigma_info &si, data_info& di, double* allfit, double* allfit_proposed, double* mu_train, Rcpp::NumericVector Y_train, RNG& gen);
-void update_tau_scale(sigma_info &si, data_info& di, double* allfit, double* allfit_proposed, double* tau_train, Rcpp::NumericVector Y_train, RNG& gen);
-double calculate_lp_diff_forscales(double* allfit, double* allfit_proposed, double log_prior_current, double log_prior_proposed,int n_train, double* var_i, Rcpp::NumericVector Y_train);
+void update_mu_scale(sigma_info& si, data_info& di, double* allfit, double* allfit_proposed, double* mu_train, RNG& gen);
+void update_tau_scale(sigma_info& si, data_info& di, double* allfit, double* allfit_proposed, double* tau_train, RNG& gen);
+double calculate_lp_diff_forscales(double* allfit, double* allfit_proposed, double log_prior_current, double log_prior_proposed, data_info& di);
 
 #endif /* end of sigma_helpers_h */

@@ -144,90 +144,73 @@ void draw_u(sigma_info &si, data_info& di, double* w, RNG &gen) {
   }
 }
 
-void update_mu_scale(sigma_info &si, data_info& di,
+void update_mu_scale(sigma_info& si, data_info& di,
                       double* allfit, double* allfit_proposed, 
-                      double* mu_train,
-                      Rcpp::NumericVector Y_train, RNG& gen) {
+                      double* mu_train, RNG& gen) {
     double proposal = propose_sigma(di.mu_scale, si.ls_mu_scale, gen);
     double scale_ratio = proposal/di.mu_scale;
-    double scale_diff = proposal - di.mu_scale;
+    double srm1 = scale_ratio - 1;
+    double delta;
+    // mu_train (x) is unscaled mu (m) times old scale (s0), so when we change to new scale (s1)
+    // we want m*s1 = s1*x/s0
+    // so the diff is s1x/s0 - x = (scale ratio - 1) * mu train
     for (int k=0; k<di.n; ++k) {
-      allfit_proposed[k] = allfit[k] + mu_train[k] * scale_diff;
+      delta = mu_train[k] * srm1;
+      allfit_proposed[k] = allfit[k] + delta;
+      di.rp_proposed[k] = di.rp[k] - delta;
     }
     
     // Implicitly the denominator is 2*hyperprior variance, but hyperprior var is 1
-    double log_prior_current =  -di.mu_scale * di.mu_scale      / (2);
-    double log_prior_proposed = -proposal    * proposal   / (2);
+    double log_prior_current =  -di.mu_scale * di.mu_scale / (2);
+    double log_prior_proposed = -proposal    * proposal    / (2);
     
-    double lp_diff = calculate_lp_diff_forscales(allfit, allfit_proposed, log_prior_current, log_prior_proposed, di.n, di.var_i, Y_train);
+    double lp_diff = calculate_lp_diff_forscales(allfit, allfit_proposed, log_prior_current, log_prior_proposed, di);
     double log_ratio = lp_diff + log(proposal) - log(di.mu_scale);
 
     //Accept or reject
     double cut = gen.uniform();
-
-    Rcpp::Rcout << "muscale.curr_ms " << di.mu_scale << std::endl;
-    Rcpp::Rcout << "muscale.curr_af " << allfit[di.n-1] << std::endl;
-    Rcpp::Rcout << "muscale.curr_mu " << mu_train[di.n-1] << std::endl;
-    Rcpp::Rcout << "muscale.prop_ms " << proposal << std::endl;
-    Rcpp::Rcout << "muscale.prop_af " << allfit_proposed[di.n-1] << std::endl;
-    Rcpp::Rcout << "muscale.prop_mu " << mu_train[di.n-1] * scale_ratio << std::endl;
-    Rcpp::Rcout << "muscale.curr_lp " << log_prior_current << std::endl;
-    Rcpp::Rcout << "muscale.prop_lp " << log_prior_proposed << std::endl;
-    Rcpp::Rcout << "muscale.lpdiff " << lp_diff << std::endl;
-    Rcpp::Rcout << "muscale.lograt " << log_ratio << std::endl;
-    Rcpp::Rcout << "muscale.cut " << cut << std::endl;
-
     if (log(cut) < log_ratio) {
       di.mu_scale = proposal;
       si.ac_mu_scale += 1;
       for(int k=0; k<di.n; ++k) {
         allfit[k]      = allfit_proposed[k];
         mu_train[k]    = mu_train[k] * scale_ratio;
+        di.rp[k]       = di.rp_proposed[k];
       }
     } else {
       // Nothing, we rejected
     }
 }
 
-void update_tau_scale(sigma_info &si, data_info& di,
+void update_tau_scale(sigma_info& si, data_info& di,
                       double* allfit, double* allfit_proposed, 
-                      double* tau_train,
-                      Rcpp::NumericVector Y_train, RNG& gen) {
+                      double* tau_train, RNG& gen) {
     double proposal = propose_sigma(di.tau_scale, si.ls_tau_scale, gen);
     double scale_ratio = proposal/di.tau_scale;
-    double scale_diff = proposal - di.tau_scale;
+    double srm1 = scale_ratio - 1;
+    double delta;
     for (int k=0; k<di.n; ++k) {
-      allfit_proposed[k] = allfit[k] + tau_train[k] * scale_diff;
+      delta = tau_train[k] * srm1;
+      allfit_proposed[k] = allfit[k] + delta;
+      di.rp_proposed[k] = di.rp[k] - delta;
     }
     
     // Implicitly the denominator is 2*hyperprior variance, but hyperprior var is 1
-    double log_prior_current =  -di.tau_scale * di.tau_scale      / (2);
-    double log_prior_proposed = -proposal    * proposal   / (2);
+    double log_prior_current =  -di.tau_scale * di.tau_scale / (2);
+    double log_prior_proposed = -proposal     * proposal     / (2);
     
-    double lp_diff = calculate_lp_diff_forscales(allfit, allfit_proposed, log_prior_current, log_prior_proposed, di.n, di.var_i, Y_train);
+    double lp_diff = calculate_lp_diff_forscales(allfit, allfit_proposed, log_prior_current, log_prior_proposed, di);
     double log_ratio = lp_diff + log(proposal) - log(di.tau_scale);
 
     //Accept or reject
     double cut = gen.uniform();
-
-    Rcpp::Rcout << "tauscale.curr_ts " << di.tau_scale << std::endl;
-    Rcpp::Rcout << "tauscale.curr_af " << allfit[di.n-1] << std::endl;
-    Rcpp::Rcout << "tauscale.curr_tau " << tau_train[di.n-1] << std::endl;
-    Rcpp::Rcout << "tauscale.prop_ts " << proposal << std::endl;
-    Rcpp::Rcout << "tauscale.prop_af " << allfit_proposed[di.n-1] << std::endl;
-    Rcpp::Rcout << "tauscale.prop_tau " << tau_train[di.n-1] * scale_ratio << std::endl;
-    Rcpp::Rcout << "tauscale.curr_lp " << log_prior_current << std::endl;
-    Rcpp::Rcout << "tauscale.prop_lp " << log_prior_proposed << std::endl;
-    Rcpp::Rcout << "tauscale.lpdiff " << lp_diff << std::endl;
-    Rcpp::Rcout << "tauscale.lograt " << log_ratio << std::endl;
-    Rcpp::Rcout << "tauscale.cut " << cut << std::endl;
-
     if (log(cut) < log_ratio) {
       di.tau_scale = proposal;
       si.ac_tau_scale += 1;
       for(int k=0; k<di.n; ++k) {
         allfit[k]      = allfit_proposed[k];
-        tau_train[k]    = tau_train[k] * scale_ratio;
+        tau_train[k]   = tau_train[k] * scale_ratio;
+        di.rp[k]       = di.rp_proposed[k];
       }
     } else {
       // Nothing, we rejected
@@ -236,20 +219,20 @@ void update_tau_scale(sigma_info &si, data_info& di,
 
 double calculate_lp_diff_forscales(double* allfit, double* allfit_proposed, 
                                     double log_prior_current, double log_prior_proposed,
-                                    int n_train, double* var_i, Rcpp::NumericVector Y_train) {
+                                    data_info& di) {
   // Log likelihood requires two different sums: sum of the log of sigma_i^2, and sum of resid/sigma_i^2
   double sum_r_over_sig2_i_current  = 0;
   double sum_r_over_sig2_i_proposed = 0;
 
   double r_current, r2_current, r_proposed, r2_proposed;
-  for (int i=0; i<n_train; i++) {
-    r_current   = Y_train[i] - allfit[i];
+  for (int i=0; i<di.n; i++) {
+    r_current   = di.rp[i];
     r2_current  = r_current*r_current;
-    r_proposed  = Y_train[i] - allfit_proposed[i];
+    r_proposed  =di.rp_proposed[i];
     r2_proposed = r_proposed*r_proposed;
 
-    sum_r_over_sig2_i_current  += r2_current  / var_i[i];
-    sum_r_over_sig2_i_proposed += r2_proposed / var_i[i];
+    sum_r_over_sig2_i_current  += r2_current  / di.var_i[i];
+    sum_r_over_sig2_i_proposed += r2_proposed / di.var_i[i];
   }
   // Now compose the log posteriors: log prior + log likelihood
   // thje logposterior also includes sum(log*sigma2_i), but because that is the same for both current and proposal, we can ignore in the diff since it falls out as a proportionality constant

@@ -120,6 +120,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
   double* tau_train = new double[n_train]; // temp container for tau_i only for treated! 
   double* u_vec = new double[n_train];
   double* residual = new double[n_train];
+  double* residual_proposed = new double[n_train];
   double* allfit_proposed = new double[n_train];
   
   // set up our data info object
@@ -143,6 +144,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
   if(p_cat_mu > 0) di_train.x_cat_mu = tX_cat_mu_train.begin();
   if(p_cat_tau > 0) di_train.x_cat_tau = tX_cat_tau_train.begin();
   di_train.rp = residual;
+  di_train.rp_proposed = residual_proposed;
 
   if (verbose) {
     Rcpp::Rcout << "Setting up sigma info" << std::endl;
@@ -332,8 +334,6 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         Rcpp::checkUserInterrupt();
       }
     }
-    
-    Rcpp::Rcout << "iter " << iter << std::endl;
 
     // loop over the mu trees first
     total_accept = 0;
@@ -342,13 +342,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
       tau_train[i] = 0.0;
     }
 
-    if (iter >= 136 && iter <= 137) {
-      for (int i=0; i<n_train; i++) {
-        Rcpp::Rcout << "preresid." << i+1 << " " << residual[i] << std::endl;
-      }
-    }
     for(int m = 0; m < M_mu; m++){
-      Rcpp::Rcout << "tree.num " << m << std::endl;
       for(suff_stat_it ss_it = ss_train_mu_vec[m].begin(); ss_it != ss_train_mu_vec[m].end(); ++ss_it){
         // loop over the bottom nodes in m-th tree
         tmp_mu = t_mu_vec[m].get_ptr(ss_it->first)->get_mu(); // get the value of mu in the leaf
@@ -375,24 +369,12 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         }
       } // this loop is also O(n)
     } // closes loop over all of the trees
-    if (iter >= 136 && iter <= 137) {
-      for (int i=0; i<n_train; i++) {
-        Rcpp::Rcout << "btwresid." << i+1 << " " << residual[i] << std::endl;
-      }
-    }
-    
-    
+        
     // now it's time to update the tau_trees
     for(int m = 0; m < M_tau; m++){
-      Rcpp::Rcout << "tree.num " << m << std::endl;
-      int taui = 0;
       for(suff_stat_it ss_it = ss_train_tau_vec[m].begin(); ss_it != ss_train_tau_vec[m].end(); ++ss_it){
         // loop over the bottom nodes in m-th tree
         tmp_mu = t_tau_vec[m].get_ptr(ss_it->first)->get_mu(); // get the value of mu in the leaf
-        taui += 1;
-        if (iter >= 136 && iter <= 137) {
-          Rcpp::Rcout << "taunodepre." << taui << " " << tmp_mu << std::endl;
-        }
         for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it){
           // remove fit of m-th tree from allfit: allfit[i] -= tmp_mu
           // for partial residual: we could compute Y - allfit (now that allfit has fit of m-th tree removed)
@@ -407,13 +389,8 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
       total_accept += accept;
   
       // now we need to update the value of allfit
-      taui = 0;
       for(suff_stat_it ss_it = ss_train_tau_vec[m].begin(); ss_it != ss_train_tau_vec[m].end(); ++ss_it){
         tmp_mu = t_tau_vec[m].get_ptr(ss_it->first)->get_mu();
-        taui += 1;
-        if (iter >= 136 && iter <= 137) {
-          Rcpp::Rcout << "taunodepost." << taui << " " << tmp_mu << std::endl;
-        }
         for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it){
           // add fit of m-th tree back to allfit and subtract it from the value of the residual
           allfit_train[*it + n_control] += di_train.tau_scale * tmp_mu;
@@ -422,34 +399,10 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         }
       } // this loop is also O(n)
     } // closes loop over all of the trees
-     if (iter >= 136 && iter <= 137) {
-      for (int i=0; i<n_train; i++) {
-        Rcpp::Rcout << "postresid." << i+1 << " " << residual[i] << std::endl;
-      }
-    }
     
     if (use_halfnormal_scales) {
-      Rcpp::Rcout << "pre.ms " << di_train.mu_scale << std::endl;
-      Rcpp::Rcout << "pre.ts " << di_train.tau_scale << std::endl;
-      Rcpp::Rcout << "pre.af " << allfit_train[n_train-1] << std::endl;
-      Rcpp::Rcout << "pre.mu " << mu_train[n_train-1] << std::endl;
-      Rcpp::Rcout << "pre.tau " << tau_train[n_train-1] << std::endl;
-
-      update_mu_scale (s_info, di_train, allfit_train, allfit_proposed, mu_train, Y_train, gen);
-
-      Rcpp::Rcout << "btw.ms " << di_train.mu_scale << std::endl;
-      Rcpp::Rcout << "btw.ts " << di_train.tau_scale << std::endl;
-      Rcpp::Rcout << "btw.af " << allfit_train[n_train-1] << std::endl;
-      Rcpp::Rcout << "btw.mu " << mu_train[n_train-1] << std::endl;
-      Rcpp::Rcout << "btw.tau " << tau_train[n_train-1] << std::endl;
-
-      update_tau_scale(s_info, di_train, allfit_train, allfit_proposed, tau_train, Y_train, gen);
-
-      Rcpp::Rcout << "post.ms " << di_train.mu_scale << std::endl;
-      Rcpp::Rcout << "post.ts " << di_train.tau_scale << std::endl;
-      Rcpp::Rcout << "post.af " << allfit_train[n_train-1] << std::endl;
-      Rcpp::Rcout << "post.mu " << mu_train[n_train-1] << std::endl;
-      Rcpp::Rcout << "post.tau " << tau_train[n_train-1] << std::endl;
+      update_mu_scale (s_info, di_train, allfit_train, allfit_proposed, mu_train, gen);
+      update_tau_scale(s_info, di_train, allfit_train, allfit_proposed, tau_train, gen);
     }
 
     // ready to update sigma
@@ -459,10 +412,6 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
 
     if ((iter+1) % batch_size == 0) {
       update_adaptive_ls(s_info, iter, batch_size, acceptance_target);
-      Rcpp::Rcout << "si.ms_ac " << s_info.ac_mu_scale << std::endl;
-      Rcpp::Rcout << "si.ts_ac " << s_info.ac_tau_scale << std::endl;
-      Rcpp::Rcout << "si.ms_ls " << s_info.ls_mu_scale << std::endl;
-      Rcpp::Rcout << "si.ts_ls " << s_info.ls_tau_scale << std::endl;
     }
     if(sparse){
       update_theta_u(theta_mu, u_mu, var_count_mu, p_mu, a_u, b_u, gen);
