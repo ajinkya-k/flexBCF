@@ -36,7 +36,8 @@ aBCF_mc <- function(...,
   results$varcount_mu      <- lapply(fit, \(x) x$varcount_mu)
   results$varcount_tau     <- lapply(fit, \(x) x$varcount_tau)
   results$cat_levels_list  <- fit[[1]]$cat_levels_list
-  results$acceptance       <- do.call(what=cbind, lapply(fit, \(x) x$acceptance)) 
+  results$acceptance       <- do.call(what=cbind, lapply(fit, \(x) x$acceptance))
+  colnames(results$acceptance) <- names(fit[[1]]$acceptance)
   
   return(results)
 }

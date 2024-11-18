@@ -465,10 +465,10 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
     } // closes if that checks whether we should save anything in this iteration
   } // closes the main MCMC for loop
 
-  ac_output(0) = float(s_info.ac_mu_scale)  / total_draws;
-  ac_output(1) = float(s_info.ac_tau_scale) / total_draws;
-  ac_output(2) = float(s_info.ac_sigma_e)   / total_draws;
-  ac_output(3) = float(s_info.ac_sigma_u)   / total_draws;
+  ac_output(0) = float(s_info.ac_sigma_e)   / total_draws;
+  ac_output(1) = float(s_info.ac_sigma_u)   / total_draws;
+  ac_output(2) = float(s_info.ac_mu_scale)  / total_draws;
+  ac_output(3) = float(s_info.ac_tau_scale) / total_draws;
 
   Rcpp::List results;
   results["sigma_u"] = sigma_u_samples;
