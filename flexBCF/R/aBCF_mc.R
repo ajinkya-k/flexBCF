@@ -4,7 +4,7 @@ aBCF_mc <- function(...,
                     n_cores=4,
                     verbose=TRUE) {
   
-  if (n_cores > 1) {
+  if (n_cores > 1 & n_chains > 1) {
     future::plan(future::multisession, workers=n_cores)
     if (verbose) {
       print('Running in parallel')  
