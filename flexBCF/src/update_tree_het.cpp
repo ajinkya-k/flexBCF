@@ -21,6 +21,7 @@ void grow_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_t
   if(nxp == 0){
     // nx is the root node so transition always propose growing it
     q_grow_old = 1.0; //
+    nnog_new = 1; // nx has no grandchildren in new tree
   } else if(nxp->is_nog()){
     // parent of nx has no grandchildren in old tree
     // in new tree nxp has grandchildren but nx does not
@@ -140,6 +141,7 @@ void grow_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_
   if(nxp == 0){
     // nx is the root node so transition always propose growing it
     q_grow_old = 1.0; //
+    nnog_new = 1; // nx has no grandchildren in new tree
   } else if(nxp->is_nog()){
     // parent of nx has no grandchildren in old tree
     // in new tree nxp has grandchildren but nx does not
