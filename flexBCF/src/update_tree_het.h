@@ -11,8 +11,8 @@ void grow_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_
 void prune_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen);
 void prune_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen);
 
-void update_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen);
-void update_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen);
+void update_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen, bool print);
+void update_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen, bool print);
 
 
 

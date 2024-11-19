@@ -441,7 +441,7 @@ void prune_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di
 }
 
 
-void update_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen){
+void update_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen, bool print){
   accept = 0; // initialize indicator of MH acceptance to 0 (reject)
   double PBx = tree_pi.prob_b; // prob of proposing a birth move (typically 0.5)
   if(t.get_treesize() == 1) PBx = 1.0; // if tree is just the root, we must always GROW
@@ -450,13 +450,13 @@ void update_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di
   else prune_tree_mu_het(t, ss_train, accept, di_train, tree_pi, gen);
 
   // by this point, the decision tree has been updated so we can draw new jumps.
-  draw_leaf_mu_het(t, ss_train, di_train, tree_pi, gen);
+  draw_leaf_mu_het(t, ss_train, di_train, tree_pi, gen, print);
 }
 
 
 
 
-void update_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen)
+void update_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen, bool print)
 {
   accept = 0; // initialize indicator of MH acceptance to 0 (reject)
   double PBx = tree_pi.prob_b; // prob of proposing a birth move (typically 0.5)
@@ -466,5 +466,5 @@ void update_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &d
   else prune_tree_tau_het(t, ss_train, accept, di_train, tree_pi, gen);
 
   // by this point, the decision tree has been updated so we can draw new jumps.
-  draw_leaf_tau_het(t, ss_train, di_train, tree_pi, gen);
+  draw_leaf_tau_het(t, ss_train, di_train, tree_pi, gen, print);
 }

@@ -21,6 +21,7 @@ aBCF <- function(Y_train,
                  batch_size = 100, acceptance_target=0.44,
                  nu=3, lambda=NULL,
                  verbose = TRUE, print_every = floor((nd*thin + burn))/10,
+                 log_tau_nodes = FALSE, log_mu_nodes=FALSE,
                  chain_num=1)
 {
   
@@ -68,6 +69,7 @@ aBCF <- function(Y_train,
                use_halfnormal_scales=use_halfnormal_scales,
                nd = nd, burn = burn, thin = thin, save_samples = save_samples,
                batch_size = batch_size, acceptance_target = acceptance_target,
+               log_tau_nodes = log_tau_nodes, log_mu_nodes=log_mu_nodes,
                verbose = verbose, print_every = print_every)
   results <- list()
   results[["chain_num"]]    <- chain_num

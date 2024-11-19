@@ -34,6 +34,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
                    bool use_halfnormal_scales,
                    int nd, int burn, int thin, bool save_samples,
                    int batch_size, double acceptance_target,
+                   bool log_tau_nodes, bool log_mu_nodes,
                    bool verbose, int print_every)
 {
   Rcpp::RNGScope scope;
@@ -335,6 +336,10 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
       }
     }
 
+    if (log_tau_nodes | log_mu_nodes) {
+      Rcpp::Rcout << "iter " << iter << std::endl;
+    }
+
     // loop over the mu trees first
     total_accept = 0;
     for (int i = 0; i < n_train; i++) {
@@ -343,6 +348,9 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
     }
 
     for(int m = 0; m < M_mu; m++){
+      if (log_mu_nodes) {
+        Rcpp::Rcout << "mutree " << m << std::endl;
+      }
       for(suff_stat_it ss_it = ss_train_mu_vec[m].begin(); ss_it != ss_train_mu_vec[m].end(); ++ss_it){
         // loop over the bottom nodes in m-th tree
         tmp_mu = t_mu_vec[m].get_ptr(ss_it->first)->get_mu(); // get the value of mu in the leaf
@@ -355,7 +363,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         }
       } // this whole loop is O(n)
       
-      update_tree_mu_het(t_mu_vec[m], ss_train_mu_vec[m], accept, di_train, tree_pi_mu, gen); // update the tree
+      update_tree_mu_het(t_mu_vec[m], ss_train_mu_vec[m], accept, di_train, tree_pi_mu, gen, log_mu_nodes); // update the tree
       total_accept += accept;
   
       // now we need to update the value of allfit
@@ -372,6 +380,9 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         
     // now it's time to update the tau_trees
     for(int m = 0; m < M_tau; m++){
+      if (log_tau_nodes) {
+        Rcpp::Rcout << "tautree " << m << std::endl;
+      }
       for(suff_stat_it ss_it = ss_train_tau_vec[m].begin(); ss_it != ss_train_tau_vec[m].end(); ++ss_it){
         // loop over the bottom nodes in m-th tree
         tmp_mu = t_tau_vec[m].get_ptr(ss_it->first)->get_mu(); // get the value of mu in the leaf
@@ -385,7 +396,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         }
       } // this whole loop is O(n)
       
-      update_tree_tau_het(t_tau_vec[m], ss_train_tau_vec[m], accept, di_train, tree_pi_tau, gen); // update the tree
+      update_tree_tau_het(t_tau_vec[m], ss_train_tau_vec[m], accept, di_train, tree_pi_tau, gen, log_tau_nodes); // update the tree
       total_accept += accept;
   
       // now we need to update the value of allfit
