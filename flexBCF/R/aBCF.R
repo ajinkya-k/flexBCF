@@ -87,9 +87,9 @@ aBCF <- function(Y_train,
   results[["y_sd"]]         <- y_sd
   results[["cat_levels_list"]] <- list(mu = cat_levels_list_mu, tau = cat_levels_list_tau)
   
-  names(results[["acceptance"]]) <- c('mu_scale', 'tau_scale', 'sigma_e', 'sigma_u')
+  names(results[["acceptance"]]) <- c('sigma_e', 'sigma_u','mu_scale', 'tau_scale')
   if (!use_halfnormal_scales) {
-    results[["acceptance"]] <- results[["acceptance"]][3:4]
+    results[["acceptance"]] <- results[["acceptance"]][1:2]
   }
   
   return(results)
