@@ -34,6 +34,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
                    bool use_halfnormal_scales,
                    int nd, int burn, int thin, bool save_samples,
                    int batch_size, double acceptance_target,
+                   bool prior_only,
                    bool verbose, int print_every)
 {
   Rcpp::RNGScope scope;
@@ -355,7 +356,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         }
       } // this whole loop is O(n)
       
-      update_tree_mu_het(t_mu_vec[m], ss_train_mu_vec[m], accept, di_train, tree_pi_mu, gen); // update the tree
+      update_tree_mu_het(t_mu_vec[m], ss_train_mu_vec[m], accept, di_train, tree_pi_mu, gen, prior_only); // update the tree
       total_accept += accept;
   
       // now we need to update the value of allfit
@@ -385,7 +386,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         }
       } // this whole loop is O(n)
       
-      update_tree_tau_het(t_tau_vec[m], ss_train_tau_vec[m], accept, di_train, tree_pi_tau, gen); // update the tree
+      update_tree_tau_het(t_tau_vec[m], ss_train_tau_vec[m], accept, di_train, tree_pi_tau, gen, prior_only); // update the tree
       total_accept += accept;
   
       // now we need to update the value of allfit
@@ -401,14 +402,14 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
     } // closes loop over all of the trees
     
     if (use_halfnormal_scales) {
-      update_mu_scale (s_info, di_train, allfit_train, allfit_proposed, mu_train, gen);
-      update_tau_scale(s_info, di_train, allfit_train, allfit_proposed, tau_train, gen);
+      update_mu_scale (s_info, di_train, allfit_train, allfit_proposed, mu_train, gen, prior_only);
+      update_tau_scale(s_info, di_train, allfit_train, allfit_proposed, tau_train, gen, prior_only);
     }
 
     // ready to update sigma
-    update_sigma_e(s_info, di_train, nu, lambda, wts, gen);
-    update_sigma_u(s_info, di_train, sigu_hyperprior, wts, gen);
-    draw_u(s_info, di_train, wts, gen);
+    update_sigma_e(s_info, di_train, nu, lambda, wts, gen, prior_only);
+    update_sigma_u(s_info, di_train, sigu_hyperprior, wts, gen, prior_only);
+    draw_u(s_info, di_train, wts, gen, prior_only);
 
     if ((iter+1) % batch_size == 0) {
       update_adaptive_ls(s_info, iter, batch_size, acceptance_target);

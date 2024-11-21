@@ -1,6 +1,6 @@
 #include "update_tree_het.h"
 
-void grow_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen)
+void grow_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen, bool prior_only)
 {
   std::vector<int> bn_nid_vec; // vector to hold the id's of all of the bottom nodes in the tree
   for(suff_stat_it ss_it = ss_train.begin(); ss_it != ss_train.end(); ++ss_it) bn_nid_vec.push_back(ss_it->first);
@@ -69,7 +69,10 @@ void grow_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_t
   
   // likelihood ratio also needs to include some constants from prior on jumps condition on tree
   // in GROW move, the new tree has one extra leaf so there's an additional factor of tau^(-1) * exp(-mu0^2/2tau^2) from leaf prior in the numerator
-  double log_like_ratio = nxl_lil + nxr_lil - nx_lil - 1.0 * log(tree_pi.tau) - 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  double log_like_ratio = - 1.0 * log(tree_pi.tau) - 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  if (!prior_only) {
+    log_like_ratio += nxl_lil + nxr_lil - nx_lil;
+  }
   
   double log_alpha = log_like_ratio + log_prior_ratio + log_trans_ratio; // MH ratio
   if(log_alpha > 0) log_alpha = 0.0; // if MH ratio greater than 1, we set it equal to 1. this is almost never needed
@@ -120,7 +123,7 @@ void grow_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_t
 }
 
 
-void grow_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen)
+void grow_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen, bool prior_only)
 {
   std::vector<int> bn_nid_vec; // vector to hold the id's of all of the bottom nodes in the tree
   for(suff_stat_it ss_it = ss_train.begin(); ss_it != ss_train.end(); ++ss_it) bn_nid_vec.push_back(ss_it->first);
@@ -188,7 +191,10 @@ void grow_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_
   
   // likelihood ratio also needs to include some constants from prior on jumps condition on tree
   // in GROW move, the new tree has one extra leaf so there's an additional factor of tau^(-1) * exp(-mu0^2/2tau^2) from leaf prior in the numerator
-  double log_like_ratio = nxl_lil + nxr_lil - nx_lil - 1.0 * log(tree_pi.tau) - 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  double log_like_ratio = - 1.0 * log(tree_pi.tau) - 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  if (!prior_only) {
+    log_like_ratio += nxl_lil + nxr_lil - nx_lil;
+  }
   
   double log_alpha = log_like_ratio + log_prior_ratio + log_trans_ratio; // MH ratio
   if(log_alpha > 0) log_alpha = 0.0; // if MH ratio greater than 1, we set it equal to 1. this is almost never needed
@@ -241,7 +247,7 @@ void grow_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_
 
 // when grow_tree is called: ss maps observations to the leaf nodes of the current tree
 // if the grow move is accepted, ss gets updated
-void prune_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen)
+void prune_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen, bool prior_only)
 {
   // first we randomly select a nog node
   tree::npv nogs_vec; // vector of pointers to nodes w/ no grandchildren
@@ -289,7 +295,10 @@ void prune_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_
   
   // old tree has one more leaf node than new tree so there is additional factor of
   // (tau)^(-1) * exp(-mu0^2/(2 * tau^2)) in denominator of likelihood ratio that comes from the prior on leafs
-  double log_like_ratio = nx_lil - nxl_lil - nxr_lil + log(tree_pi.tau) + 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  double log_like_ratio = log(tree_pi.tau) + 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  if (!prior_only) {
+    log_like_ratio += nx_lil - nxl_lil - nxr_lil;
+  }
   
   double log_alpha = log_like_ratio + log_prior_ratio + log_trans_ratio;
   if(log_alpha > 0) log_alpha = 0; // if MH greater than we, set it equal to 1
@@ -341,7 +350,7 @@ void prune_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_
 }
 
 
-void prune_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen)
+void prune_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen, bool prior_only)
 {
   // first we randomly select a nog node
   tree::npv nogs_vec; // vector of pointers to nodes w/ no grandchildren
@@ -389,7 +398,10 @@ void prune_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di
   
   // old tree has one more leaf node than new tree so there is additional factor of
   // (tau)^(-1) * exp(-mu0^2/(2 * tau^2)) in denominator of likelihood ratio that comes from the prior on leafs
-  double log_like_ratio = nx_lil - nxl_lil - nxr_lil + log(tree_pi.tau) + 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  double log_like_ratio = log(tree_pi.tau) + 0.5 * pow(tree_pi.mu0/tree_pi.tau,2.0);
+  if (!prior_only) {
+    log_like_ratio += nx_lil - nxl_lil - nxr_lil;
+  }
   
   double log_alpha = log_like_ratio + log_prior_ratio + log_trans_ratio;
   if(log_alpha > 0) log_alpha = 0; // if MH greater than we, set it equal to 1
@@ -441,30 +453,30 @@ void prune_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di
 }
 
 
-void update_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen){
+void update_tree_mu_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen, bool prior_only){
   accept = 0; // initialize indicator of MH acceptance to 0 (reject)
   double PBx = tree_pi.prob_b; // prob of proposing a birth move (typically 0.5)
   if(t.get_treesize() == 1) PBx = 1.0; // if tree is just the root, we must always GROW
   
-  if(gen.uniform() < PBx) grow_tree_mu_het(t, ss_train, accept, di_train, tree_pi, gen);
-  else prune_tree_mu_het(t, ss_train, accept, di_train, tree_pi, gen);
+  if(gen.uniform() < PBx) grow_tree_mu_het(t, ss_train, accept, di_train, tree_pi, gen, prior_only);
+  else prune_tree_mu_het(t, ss_train, accept, di_train, tree_pi, gen, prior_only);
 
   // by this point, the decision tree has been updated so we can draw new jumps.
-  draw_leaf_mu_het(t, ss_train, di_train, tree_pi, gen);
+  draw_leaf_mu_het(t, ss_train, di_train, tree_pi, gen, prior_only);
 }
 
 
 
 
-void update_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen)
+void update_tree_tau_het(tree &t, suff_stat &ss_train, int &accept, data_info &di_train, tree_prior_info &tree_pi, RNG &gen, bool prior_only)
 {
   accept = 0; // initialize indicator of MH acceptance to 0 (reject)
   double PBx = tree_pi.prob_b; // prob of proposing a birth move (typically 0.5)
   if(t.get_treesize() == 1) PBx = 1.0; // if tree is just the root, we must always GROW
   
-  if(gen.uniform() < PBx) grow_tree_tau_het(t, ss_train, accept, di_train, tree_pi, gen);
-  else prune_tree_tau_het(t, ss_train, accept, di_train, tree_pi, gen);
+  if(gen.uniform() < PBx) grow_tree_tau_het(t, ss_train, accept, di_train, tree_pi, gen, prior_only);
+  else prune_tree_tau_het(t, ss_train, accept, di_train, tree_pi, gen, prior_only);
 
   // by this point, the decision tree has been updated so we can draw new jumps.
-  draw_leaf_tau_het(t, ss_train, di_train, tree_pi, gen);
+  draw_leaf_tau_het(t, ss_train, di_train, tree_pi, gen, prior_only);
 }

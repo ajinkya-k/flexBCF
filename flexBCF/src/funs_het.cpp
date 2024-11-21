@@ -45,7 +45,7 @@ double compute_lil_tau_het(suff_stat &ss, int &nid, data_info &di, tree_prior_in
 
 
 
-void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tree_pi, RNG &gen)
+void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tree_pi, RNG &gen, bool prior_only)
 {
   double P;
   double Theta;
@@ -62,10 +62,12 @@ void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tr
       double s2; //container for variance for ease of reading the code, used in loop below
       double scale2 = pow(di.mu_scale, 2.0);
 
-      for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
-        s2 = di.var_i[*it];
-        Theta += di.rp[*it]*di.mu_scale/s2;
-        P += scale2/s2;
+      if (!prior_only) {
+        for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
+          s2 = di.var_i[*it];
+          Theta += di.rp[*it]*di.mu_scale/s2;
+          P += scale2/s2;
+        }
       }
 
       post_sd = sqrt(1.0/P);
@@ -75,7 +77,7 @@ void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tr
   }
 }
 
-void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tree_pi, RNG &gen)
+void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tree_pi, RNG &gen, bool prior_only)
 {
   double P;
   double Theta;
@@ -92,14 +94,16 @@ void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &t
       double s2;
       double scale2 = pow(di.tau_scale, 2.0);
 
-      // remember that ss_it->second contains the index within the treated set and not the whole dataset
-      // we must offset by di.n_control!
-      for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
-        s2 = di.var_i[*it + di.n_control];
-        // rp is on the actual scale, not unitless. So convert to unitless as
-        //rp/m, then multiply byh m^2/s^2
-        Theta += di.rp[*it + di.n_control]*di.tau_scale/s2;
-        P += scale2/s2;
+      if (!prior_only) {
+        // remember that ss_it->second contains the index within the treated set and not the whole dataset
+        // we must offset by di.n_control!
+        for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
+          s2 = di.var_i[*it + di.n_control];
+          // rp is on the actual scale, not unitless. So convert to unitless as
+          //rp/m, then multiply byh m^2/s^2
+          Theta += di.rp[*it + di.n_control]*di.tau_scale/s2;
+          P += scale2/s2;
+        }
       }
 
       post_sd = sqrt(1.0/P);

@@ -20,7 +20,7 @@ double compute_lil_tau_het(suff_stat &ss, int &nid, data_info &di, tree_prior_in
 
 
 
-void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tree_pi, RNG &gen);
-void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tree_pi, RNG &gen);
+void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tree_pi, RNG &gen, bool prior_only);
+void draw_leaf_tau_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tree_pi, RNG &gen, bool prior_only);
 
 #endif /* funs_h */

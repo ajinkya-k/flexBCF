@@ -20,6 +20,7 @@ aBCF <- function(Y_train,
                  nd = 1000, burn = 1000, thin = 1, save_samples = TRUE,
                  batch_size = 100, acceptance_target=0.44,
                  nu=3, lambda=NULL,
+                 prior_only=FALSE,
                  verbose = TRUE, print_every = floor((nd*thin + burn))/10,
                  chain_num=1)
 {
@@ -68,6 +69,7 @@ aBCF <- function(Y_train,
                use_halfnormal_scales=use_halfnormal_scales,
                nd = nd, burn = burn, thin = thin, save_samples = save_samples,
                batch_size = batch_size, acceptance_target = acceptance_target,
+               prior_only=prior_only,
                verbose = verbose, print_every = print_every)
   results <- list()
   results[["chain_num"]]    <- chain_num
