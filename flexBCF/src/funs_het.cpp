@@ -16,7 +16,7 @@ double compute_lil_mu_het(suff_stat &ss, int &nid, data_info &di, tree_prior_inf
   
   for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
     s2 = di.var_i[*it];
-    Theta += di.rp[*it]*scale2/s2;
+    Theta += di.rp[*it]*di.mu_scale/s2;
     P += scale2/s2;
   }
   return(-0.5 * log(P) + 0.5 * pow(Theta,2.0) / P);
@@ -36,7 +36,7 @@ double compute_lil_tau_het(suff_stat &ss, int &nid, data_info &di, tree_prior_in
   // we must offset by di.n_control!
   for(int_it it = ss_it->second.begin(); it != ss_it->second.end(); ++it) {
     s2 = di.var_i[*it + di.n_control];
-    Theta += di.rp[*it + di.n_control]*scale2/s2;
+    Theta += di.rp[*it + di.n_control]*di.tau_scale/s2;
     P += scale2/s2;
   }
   return(-0.5 * log(P) + 0.5 * pow(Theta,2.0) / P);
