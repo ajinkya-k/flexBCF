@@ -31,6 +31,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
                    int M_mu, int M_tau,
                    double alpha_mu, double beta_mu,
                    double alpha_tau, double beta_tau,
+                   int min_node_size,
                    bool use_halfnormal_scales,
                    int nd, int burn, int thin, bool save_samples,
                    int batch_size, double acceptance_target,
@@ -356,7 +357,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         }
       } // this whole loop is O(n)
       
-      update_tree_mu_het(t_mu_vec[m], ss_train_mu_vec[m], accept, di_train, tree_pi_mu, gen, prior_only); // update the tree
+      update_tree_mu_het(t_mu_vec[m], ss_train_mu_vec[m], accept, di_train, tree_pi_mu, gen, prior_only, min_node_size); // update the tree
       total_accept += accept;
   
       // now we need to update the value of allfit
@@ -386,7 +387,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         }
       } // this whole loop is O(n)
       
-      update_tree_tau_het(t_tau_vec[m], ss_train_tau_vec[m], accept, di_train, tree_pi_tau, gen, prior_only); // update the tree
+      update_tree_tau_het(t_tau_vec[m], ss_train_tau_vec[m], accept, di_train, tree_pi_tau, gen, prior_only, min_node_size); // update the tree
       total_accept += accept;
   
       // now we need to update the value of allfit
@@ -402,7 +403,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
     } // closes loop over all of the trees
     
     if (use_halfnormal_scales) {
-      update_mu_scale (s_info, di_train, allfit_train, allfit_proposed, mu_train, gen, prior_only);
+      update_mu_scale (s_info, di_train, allfit_train, allfit_proposed, mu_train,  gen, prior_only);
       update_tau_scale(s_info, di_train, allfit_train, allfit_proposed, tau_train, gen, prior_only);
     }
 
