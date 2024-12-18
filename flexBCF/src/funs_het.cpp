@@ -77,8 +77,25 @@ void draw_leaf_mu_het(tree &t, suff_stat &ss, data_info &di, tree_prior_info &tr
       post_mean = Theta/P;
       draw = gen.normal(post_mean, post_sd);
 
+      tree::tree_p prnt = bn->get_p();
       if (print) {
         Rcpp::Rcout << "node " << inode << std::endl;
+
+        if (prnt != 0) {
+          Rcpp::Rcout << "rtypeaa " << prnt->get_rule().is_aa << std::endl; // continous variable
+          Rcpp::Rcout << "rtypect " << prnt->get_rule().is_cat << std::endl; // categorical rule
+          // Rcpp::Rcout << "rtyperc " << prnt->get_rule().c << std::endl;
+          if(prnt->get_rule().is_aa) {
+            Rcpp::Rcout << "varno " << prnt->get_rule().v_aa << std::endl;
+            Rcpp::Rcout << "cutpt " << prnt->get_rule().c << std::endl;
+          }
+          if(prnt->get_rule().is_cat) {
+            Rcpp::Rcout << "varno " << prnt->get_rule().v_cat << std::endl;
+            Rcpp::Rcout << "cutpt " << -99 << std::endl;
+          }
+          Rcpp::Rcout << "lsize " << prnt->get_rule().l_vals.size() << std::endl;
+          Rcpp::Rcout << "rsize " << prnt->get_rule().r_vals.size() << std::endl;
+        }
         Rcpp::Rcout << "Theta " << Theta << std::endl;
         Rcpp::Rcout << "P " << P << std::endl;
         Rcpp::Rcout << "N " << cnt << std::endl;
