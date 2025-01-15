@@ -20,10 +20,10 @@ aBCF_mc <- function(...,
   
   results <- list()
   results$sigma_u   <- do.call(what=cbind, lapply(fit, \(x) x$sigma_u))
-  results$sigma_e   <- do.call(what=cbind, lapply(fit, \(x) x$sigma_e))
-  results$mu_fit    <- do.call(what=abind::abind, list(lapply(fit, \(x) x$mu_fit),  along=3)) |> aperm(c(1,3,2))
-  results$tau_fit   <- do.call(what=abind::abind, list(lapply(fit, \(x) x$tau_fit), along=3)) |> aperm(c(1,3,2))
-  results$u         <- do.call(what=abind::abind, list(lapply(fit, \(x) x$u),       along=3)) |> aperm(c(1,3,2))
+  results$sigma_y   <- do.call(what=cbind, lapply(fit, \(x) x$sigma_y))
+  results$mu        <- do.call(what=abind::abind, list(lapply(fit, \(x) x$mu),  along=3)) |> aperm(c(1,3,2))
+  results$tau       <- do.call(what=abind::abind, list(lapply(fit, \(x) x$tau), along=3)) |> aperm(c(1,3,2))
+  results$u         <- do.call(what=abind::abind, list(lapply(fit, \(x) x$u),   along=3)) |> aperm(c(1,3,2))
   results$mu_scale  <- do.call(what=cbind, lapply(fit, \(x) x$mu_scale))
   results$tau_scale <- do.call(what=cbind, lapply(fit, \(x) x$tau_scale))
   results$y_sd      <- fit[[1]]$y_sd

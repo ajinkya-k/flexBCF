@@ -23,8 +23,40 @@ aBCF <- function(Y_train,
                  nu=3, lambda=NULL,
                  prior_only=FALSE,
                  verbose = TRUE, print_every = floor((nd*thin + burn))/10,
+                 perm = NULL,
                  chain_num=1)
 {
+  
+  #Check if df is ordered
+  Nt = sum(treated)
+  Nc = length(treated) - Nt
+  is_ordered <- identical(treated[1:Nc], rep(0, Nc)) & identical(treated[(Nc+1):length(treated)], rep(1, Nt))
+  if (is.null(perm) & !is_ordered) {
+    perm <- order(treated, decreasing=FALSE)
+  } else {
+    perm <- 1:length(treated)
+  }
+  
+  #If provided tau Xs for both T and C, subset to just T
+  if (!is.null(X_cont_tau) && nrow(X_cont_tau) == Nt+Nc) {
+    X_cont_tau <- X_cont_tau[treated==1,]
+  }
+  if (!is.null(X_cat_tau) && nrow(X_cat_tau) == Nt+Nc) {
+    X_cat_tau <- X_cat_tau[treated==1,]
+  }
+  
+  Y_train <- Y_train[perm]
+  treated <- treated[perm]
+  obs_weights <- obs_weights[perm]
+  if (!is.null(X_cont_mu) && !nrow(X_cont_mu)==1) {
+    X_cont_mu <- X_cont_mu[perm,]  
+  }
+  if (!is.null(X_cat_mu) && !nrow(X_cat_mu)==1) {
+    X_cat_mu <- X_cat_mu[perm,]  
+  }
+  #No need to reorder Xs for tau, since perm necessarily preserves the within-treated order, 
+  #and we've ensured Xs only have treated units
+  #aka order(treated)[treated==1] == order(treated[treated==1])
   
   # Standardize the Y's
   y_mean <- weighted.mean(Y_train, obs_weights)
@@ -42,6 +74,8 @@ aBCF <- function(Y_train,
   graph_split_tau <- rep(FALSE, times = ncol(X_cat_tau))
   adj_support_list_mu <- NULL
   adj_support_list_tau <- NULL
+  
+  
   
   fit <- .aBCF(Y_train = std_Y,
                treated = treated,
@@ -73,15 +107,16 @@ aBCF <- function(Y_train,
                batch_size = batch_size, acceptance_target = acceptance_target,
                prior_only=prior_only,
                verbose = verbose, print_every = print_every)
+  
   results <- list()
   results[["chain_num"]]    <- chain_num
   results[["mu_trees"]]     <- fit$mu
   results[["tau_trees"]]    <- fit$tau
-  results[["mu_fit"]]       <- fit$mu_fit    * y_sd + y_mean
-  results[["tau_fit"]]      <- fit$tau_fit   * y_sd
-  results[["sigma_u"]]      <- fit$sigma_u   * y_sd
-  results[["sigma_e"]]      <- fit$sigma_e   * y_sd
-  results[["u"]]            <- fit$u_samples * y_sd
+  results[["mu"]]           <- fit$mu_fit[,order(perm)]    * y_sd + y_mean
+  results[["tau"]]          <- fit$tau_fit[,order(perm)]   * y_sd
+  results[["sigma_u"]]      <- fit$sigma_u                 * y_sd
+  results[["sigma_y"]]      <- fit$sigma_e                 * y_sd
+  results[["u"]]            <- fit$u_samples[,order(perm)] * y_sd
   results[["varcount_mu"]]  <- fit$varcount_mu
   results[["varcount_tau"]] <- fit$varcount_tau
   results[["mu_scale"]]     <- fit$mu_scale
