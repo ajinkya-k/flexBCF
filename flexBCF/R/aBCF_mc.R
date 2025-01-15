@@ -3,6 +3,7 @@ aBCF_mc <- function(...,
                     n_chains=4, 
                     n_cores=4,
                     verbose=TRUE) {
+  start_time <- Sys.time()
   
   if (n_cores > 1 & n_chains > 1) {
     future::plan(future::multisession, workers=n_cores)
@@ -38,6 +39,10 @@ aBCF_mc <- function(...,
   results$cat_levels_list  <- fit[[1]]$cat_levels_list
   results$acceptance       <- do.call(what=rbind, lapply(fit, \(x) x$acceptance))
   colnames(results$acceptance) <- names(fit[[1]]$acceptance)
+  results$time <- lapply(fit, \(x) x$time) |> unlist()
+  names(results$time) <- paste0('chain', 1:n_chains)
+  stop_time <- Sys.time()
+  results$time[['overall']] <- as.numeric(stop_time - start_time)
   
   return(results)
 }

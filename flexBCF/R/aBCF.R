@@ -76,7 +76,7 @@ aBCF <- function(Y_train,
   adj_support_list_tau <- NULL
   
   
-  
+  start_time <- Sys.time()
   fit <- .aBCF(Y_train = std_Y,
                treated = treated,
                tX_cont_mu_train = t(X_cont_mu),
@@ -107,6 +107,7 @@ aBCF <- function(Y_train,
                batch_size = batch_size, acceptance_target = acceptance_target,
                prior_only=prior_only,
                verbose = verbose, print_every = print_every)
+  stop_time <- Sys.time()
   
   results <- list()
   results[["chain_num"]]    <- chain_num
@@ -125,6 +126,7 @@ aBCF <- function(Y_train,
   results[["y_mean"]]       <- y_mean
   results[["y_sd"]]         <- y_sd
   results[["cat_levels_list"]] <- list(mu = cat_levels_list_mu, tau = cat_levels_list_tau)
+  results[["time"]] <- as.numeric(stop_time - start_time)
   
   names(results[["acceptance"]]) <- c('sigma_e', 'sigma_u','mu_scale', 'tau_scale')
   if (!use_halfnormal_scales) {
