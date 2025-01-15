@@ -263,7 +263,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
   
 
   // stuff for MCMC loop
-  int total_draws = 1 + burn + (nd-1)*thin;
+  int total_draws = burn + nd*thin;
   int sample_index = 0;
   int accept = 0;
   int total_accept = 0; // counts how many trees we change in each iteration
@@ -305,8 +305,8 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
   Rcpp::List mu_tree_draws(nd);
   Rcpp::List tau_tree_draws(nd);
   // Rcpp::NumericVector sigma_samples(total_draws);
-  arma::mat var_count_samples_mu(total_draws,p_mu);
-  arma::mat var_count_samples_tau(total_draws, p_tau);
+  arma::mat var_count_samples_mu(nd,p_mu);
+  arma::mat var_count_samples_tau(nd, p_tau);
   arma::mat mu_fit_samples = arma::zeros<arma::mat>(1, 1);
   arma::mat tau_fit_samples = arma::zeros<arma::mat>(1, 1);
   arma::mat u_samples = arma::zeros<arma::mat>(1, 1);
@@ -419,14 +419,15 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
       update_theta_u(theta_mu, u_mu, var_count_mu, p_mu, a_u, b_u, gen);
       update_theta_u(theta_tau, u_tau, var_count_tau, p_tau, a_u, b_u, gen);
     }
-    for(int j = 0; j < p_mu; j++) var_count_samples_mu(iter,j) = var_count_mu[j];
-    for(int j = 0; j < p_tau; j++) var_count_samples_tau(iter,j) = var_count_tau[j];
-    
-    if( (iter >= burn) && ( (iter - burn)%thin == 0)){
+
+    if( (iter >= burn) && ((iter - burn) % thin == (thin-1))){
 
       // Rcpp::Rcout << "Saving samples" << std::endl;
-      sample_index = (int) ( (iter-burn)/thin);
+      sample_index = (int) ((iter-burn + 1 - thin)/thin);
       
+      for(int j = 0; j < p_mu; j++) var_count_samples_mu(sample_index,  j) = var_count_mu[j];
+      for(int j = 0; j < p_tau; j++) var_count_samples_tau(sample_index,j) = var_count_tau[j];
+
       Rcpp::CharacterVector mu_tree_string_vec(M_mu);
       Rcpp::CharacterVector tau_tree_string_vec(M_tau);
       
