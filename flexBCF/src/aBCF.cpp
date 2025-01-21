@@ -401,7 +401,7 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
         }
       } // this loop is also O(n)
     } // closes loop over all of the trees
-    
+
     if (use_halfnormal_scales) {
       update_mu_scale (s_info, di_train, allfit_train, allfit_proposed, mu_train,  gen, prior_only);
       update_tau_scale(s_info, di_train, allfit_train, allfit_proposed, tau_train, gen, prior_only);
@@ -474,17 +474,29 @@ Rcpp::List aBCF(Rcpp::NumericVector Y_train,
   ac_output(3) = float(s_info.ac_tau_scale) / total_draws;
 
   Rcpp::List results;
-  results["sigma_u"] = sigma_u_samples;
-  results["sigma_e"] = sigma_e_samples;
-  results["u_samples"] = u_samples;
-  results["mu"] = mu_tree_draws;
-  results["tau"] = tau_tree_draws;
-  results["mu_fit"] = mu_fit_samples;
-  results["tau_fit"] = tau_fit_samples;
-  results["mu_scale"] = mu_scale_samples;
-  results["tau_scale"] = tau_scale_samples;
-  results["varcount_mu"] = var_count_samples_mu;
+  results["sigma_u"]      = sigma_u_samples;
+  results["sigma_e"]      = sigma_e_samples;
+  results["u_samples"]    = u_samples;
+  results["mu"]           = mu_tree_draws;
+  results["tau"]          = tau_tree_draws;
+  results["mu_fit"]       = mu_fit_samples;
+  results["tau_fit"]      = tau_fit_samples;
+  results["mu_scale"]     = mu_scale_samples;
+  results["tau_scale"]    = tau_scale_samples;
+  results["varcount_mu"]  = var_count_samples_mu;
   results["varcount_tau"] = var_count_samples_tau;
-  results["acceptance"] = ac_output;
+  results["acceptance"]   = ac_output;
+  
+  delete[] allfit_train;
+  delete[] var_i;
+  delete[] mu_train;
+  delete[] tau_train;
+  delete[] u_vec;
+  delete[] residual;
+  delete[] residual_proposed;
+  delete[] allfit_proposed;
+  delete[] prop_var_i;
+  delete[] wts;
+
   return results;
 }

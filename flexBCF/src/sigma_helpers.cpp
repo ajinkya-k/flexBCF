@@ -16,9 +16,6 @@ void calculate_sigma2_i(double sigma_e, double sigma_u, int n, double* wts, doub
   double v_y = sigma_e * sigma_e;
   double v_u = sigma_u * sigma_u;
 
-  double* test = new double[n];
-  for (int i=0; i < n; i++) test[i] = wts[i] * 2;
-
   for (int i=0; i < n; i++){
     return_loc[i] = v_y/wts[i] + v_u;
   } 

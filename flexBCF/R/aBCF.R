@@ -126,7 +126,7 @@ aBCF <- function(Y_train,
   results[["y_mean"]]       <- y_mean
   results[["y_sd"]]         <- y_sd
   results[["cat_levels_list"]] <- list(mu = cat_levels_list_mu, tau = cat_levels_list_tau)
-  results[["time"]] <- as.numeric(stop_time - start_time)
+  results[["time"]] <- as.numeric(base::difftime(stop_time, start_time, units='secs'))
   
   names(results[["acceptance"]]) <- c('sigma_e', 'sigma_u','mu_scale', 'tau_scale')
   if (!use_halfnormal_scales) {

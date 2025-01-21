@@ -10,7 +10,8 @@ aBCF_mc <- function(...,
     if (verbose) {
       print('Running in parallel')  
     }
-    fit <- furrr::future_pmap(list(chain_num=1:n_chains), aBCF, verbose=verbose,..., .options=furrr::furrr_options(seed=seed))  
+    fit <- furrr::future_pmap(list(chain_num=1:n_chains), aBCF, verbose=verbose,..., .options=furrr::furrr_options(seed=seed))
+    future::plan(future::sequential)
   } else {
     if (verbose) {
       print('Running in series')  
@@ -42,7 +43,7 @@ aBCF_mc <- function(...,
   results$time <- lapply(fit, \(x) x$time) |> unlist()
   names(results$time) <- paste0('chain', 1:n_chains)
   stop_time <- Sys.time()
-  results$time[['overall']] <- as.numeric(stop_time - start_time)
+  results$time[['overall']] <- as.numeric(base::difftime(stop_time, start_time, units='secs'))
   
   return(results)
 }
