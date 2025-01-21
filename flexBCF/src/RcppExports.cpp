@@ -149,21 +149,22 @@ BEGIN_RCPP
 END_RCPP
 }
 // predict_flexBART
-arma::mat predict_flexBART(Rcpp::List tree_draws, Rcpp::NumericMatrix tX_cont, Rcpp::IntegerMatrix tX_cat, bool treat, double y_mean, double y_sd, Rcpp::Nullable<Rcpp::List> cat_levels_list, bool verbose, int print_every);
-RcppExport SEXP _flexBCFa_predict_flexBART(SEXP tree_drawsSEXP, SEXP tX_contSEXP, SEXP tX_catSEXP, SEXP treatSEXP, SEXP y_meanSEXP, SEXP y_sdSEXP, SEXP cat_levels_listSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
+arma::mat predict_flexBART(Rcpp::List tree_draws, Rcpp::NumericMatrix tX_cont, Rcpp::IntegerMatrix tX_cat, Rcpp::NumericVector scale, bool treat, double y_mean, double y_sd, Rcpp::Nullable<Rcpp::List> cat_levels_list, bool verbose, int print_every);
+RcppExport SEXP _flexBCFa_predict_flexBART(SEXP tree_drawsSEXP, SEXP tX_contSEXP, SEXP tX_catSEXP, SEXP scaleSEXP, SEXP treatSEXP, SEXP y_meanSEXP, SEXP y_sdSEXP, SEXP cat_levels_listSEXP, SEXP verboseSEXP, SEXP print_everySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type tree_draws(tree_drawsSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type tX_cont(tX_contSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type tX_cat(tX_catSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type scale(scaleSEXP);
     Rcpp::traits::input_parameter< bool >::type treat(treatSEXP);
     Rcpp::traits::input_parameter< double >::type y_mean(y_meanSEXP);
     Rcpp::traits::input_parameter< double >::type y_sd(y_sdSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::List> >::type cat_levels_list(cat_levels_listSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< int >::type print_every(print_everySEXP);
-    rcpp_result_gen = Rcpp::wrap(predict_flexBART(tree_draws, tX_cont, tX_cat, treat, y_mean, y_sd, cat_levels_list, verbose, print_every));
+    rcpp_result_gen = Rcpp::wrap(predict_flexBART(tree_draws, tX_cont, tX_cat, scale, treat, y_mean, y_sd, cat_levels_list, verbose, print_every));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -173,7 +174,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_flexBCFa_compute_SATT", (DL_FUNC) &_flexBCFa_compute_SATT, 10},
     {"_flexBCFa_compute_weighted_SATT", (DL_FUNC) &_flexBCFa_compute_weighted_SATT, 11},
     {"_flexBCFa_flexBCF", (DL_FUNC) &_flexBCFa_flexBCF, 32},
-    {"_flexBCFa_predict_flexBART", (DL_FUNC) &_flexBCFa_predict_flexBART, 9},
+    {"_flexBCFa_predict_flexBART", (DL_FUNC) &_flexBCFa_predict_flexBART, 10},
     {NULL, NULL, 0}
 };
 

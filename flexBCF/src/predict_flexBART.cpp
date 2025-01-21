@@ -4,6 +4,7 @@
 arma::mat predict_flexBART(Rcpp::List tree_draws,
                            Rcpp::NumericMatrix tX_cont,
                            Rcpp::IntegerMatrix tX_cat,
+                           Rcpp::NumericVector scale,
                            bool treat,
                            double y_mean,
                            double y_sd,
@@ -63,7 +64,7 @@ arma::mat predict_flexBART(Rcpp::List tree_draws,
   Rcpp::CharacterVector first_tree_vec = tree_draws[0];
   int M = first_tree_vec.size();
 
-  Rcpp::Rcout << "nd = " << nd << "M = " << M;
+  Rcpp::Rcout << "nd = " << nd << " M = " << M;
   Rcpp::Rcout << " n = " << n << " p_cont = " << p_cont << " p_cat = " << p_cat << std::endl;
   
   std::vector<double> allfit(n);
@@ -94,7 +95,7 @@ arma::mat predict_flexBART(Rcpp::List tree_draws,
       if(treat) fit_ensemble_tau(allfit, t_vec, di);
       else fit_ensemble_mu(allfit, t_vec, di);
       //for(int i = 0; i < n; i++) pred_out(i,iter) = allfit[i];
-      for(int i = 0; i < n; i++) pred_out(iter,i) = allfit[i];
+      for(int i = 0; i < n; i++) pred_out(iter,i) = allfit[i] * scale[iter];
 
     } // closes if/else checking that we have M strings for the draw of the ensemble
   } // closes loop over all draws of the ensemble
