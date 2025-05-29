@@ -371,6 +371,10 @@ void tree::get_rg_aa(int &v, double &c_lower, double &c_upper){
         if(p->rule.c > c_lower) c_lower = p->rule.c;
       } else Rcpp::stop("[get_rg_aa]: this was not equal to either left or right child of its parent..."); // we should *never* hit this spot
     }
+    //TODO: need to recurse here!!!
+    //Rcpp::stop("[get_rg_aa]: you forgot the recurse up the tree to find valid cutpoints for axis aligned cuts!! This can cause empty nodes!")
+    // Rcpp::Rcout << ".";
+    p->get_rg_aa(v, c_lower, c_upper); // actually recurse up the tree
   }
 }
 
