@@ -10,3 +10,4 @@ License: GPL (>= 3)
 LinkingTo: Rcpp, RcppArmadillo
 Depends: Hmisc
 Imports: Rcpp
+RoxygenNote: 7.3.1

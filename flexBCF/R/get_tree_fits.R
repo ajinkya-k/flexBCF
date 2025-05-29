@@ -1,3 +1,15 @@
+#' Generate predictions from a fitted flexBCFa model
+#' 
+#' @param fit The fitted model object
+#' @param type Character vector of which type of trees (mu, tau) to generate prediction for.
+#' @param X_cont Matrix of continuous predictors to use. If you want to use different predictors
+#'  for mu vs tau you will need to run predict separately
+#'  NB: predictors must be scaled to [-1,1]; this must be done using the same scaling as was used for fitting the original model
+#' @param X_cat Matrix of categorical predictors
+#' @param verbose Whether to print verbosely
+#' @param print_every Print to log after each print_every'th iteration
+#' @param n_cores Number of cores to use for prediction. Should be <= number of chains
+#' @export
 get_tree_fits <- function(fit, 
                           type = c("mu","tau"),
                           X_cont = matrix(0, nrow = 1, ncol = 1),
